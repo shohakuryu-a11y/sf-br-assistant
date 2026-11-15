@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- DEMO DATA: simplified Succession Data Model for fictional tenant "Demo Corp". Not from any real customer. -->
+<succession-data-model>
+  <hris-element id="jobInfo" odata-entity="EmpJob">
+    <label>Job Information</label><label xml:lang="ja-JP">職務情報</label>
+    <hris-field id="user-id" odata-property="userId" visibility="both" required="true"><label>User ID</label><label xml:lang="ja-JP">ユーザーID</label></hris-field>
+    <hris-field id="start-date" odata-property="startDate" visibility="both" required="true"><label>Event Date</label><label xml:lang="ja-JP">発令日</label></hris-field>
+    <hris-field id="end-date" odata-property="endDate" visibility="both" required="false"><label>End Date</label><label xml:lang="ja-JP">終了日</label></hris-field>
+    <hris-field id="seq-number" odata-property="seqNumber" visibility="both" required="true"><label>Sequence Number</label><label xml:lang="ja-JP">連番</label></hris-field>
+    <hris-field id="event" odata-property="event" visibility="both" required="true" picklist-id="event"><label>Event</label><label xml:lang="ja-JP">イベント</label></hris-field>
+    <hris-field id="event-reason" odata-property="eventReason" visibility="both" required="true"><label>Event Reason</label><label xml:lang="ja-JP">イベント事由</label></hris-field>
+    <hris-field id="company" odata-property="company" visibility="both" required="true"><label>Company</label><label xml:lang="ja-JP">会社</label></hris-field>
+    <hris-field id="business-unit" odata-property="businessUnit" visibility="both" required="false"><label>Business Unit</label><label xml:lang="ja-JP">事業本部</label></hris-field>
+    <hris-field id="division" odata-property="division" visibility="both" required="false"><label>Division</label><label xml:lang="ja-JP">事業部</label></hris-field>
+    <hris-field id="department" odata-property="department" visibility="both" required="false"><label>Department</label><label xml:lang="ja-JP">部署</label></hris-field>
+    <hris-field id="location" odata-property="location" visibility="both" required="false"><label>Location</label><label xml:lang="ja-JP">勤務地</label></hris-field>
+    <hris-field id="job-code" odata-property="jobCode" visibility="both" required="false"><label>Job Classification</label><label xml:lang="ja-JP">職務コード</label></hris-field>
+    <hris-field id="job-title" odata-property="jobTitle" visibility="both" required="false"><label>Job Title</label><label xml:lang="ja-JP">職務名</label></hris-field>
+    <hris-field id="pay-grade" odata-property="payGrade" visibility="both" required="false"><label>Pay Grade</label><label xml:lang="ja-JP">等級</label></hris-field>
+    <hris-field id="manager-id" odata-property="managerId" visibility="both" required="false"><label>Supervisor</label><label xml:lang="ja-JP">上長</label></hris-field>
+    <hris-field id="employee-class" odata-property="employeeClass" visibility="both" required="false" picklist-id="employeeclass"><label>Employee Class</label><label xml:lang="ja-JP">社員区分</label></hris-field>
+    <hris-field id="employment-type" odata-property="employmentType" visibility="both" required="false" picklist-id="employmentType"><label>Employment Type</label><label xml:lang="ja-JP">雇用形態</label></hris-field>
+    <hris-field id="emplStatus" odata-property="emplStatus" visibility="both" required="false" picklist-id="employee-status"><label>Employee Status</label><label xml:lang="ja-JP">在籍ステータス</label></hris-field>
+    <hris-field id="standard-hours" odata-property="standardHours" visibility="both" required="false"><label>Standard Weekly Hours</label><label xml:lang="ja-JP">所定労働時間（週）</label></hris-field>
+    <hris-field id="fte" odata-property="fte" visibility="both" required="false"><label>FTE</label><label xml:lang="ja-JP">FTE</label></hris-field>
+    <hris-field id="probation-period-end-date" odata-property="probationPeriodEndDate" visibility="both" required="false"><label>Probation Period End Date</label><label xml:lang="ja-JP">試用期間終了日</label></hris-field>
+    <hris-field id="custom-string1" odata-property="customString1" visibility="both" required="false" picklist-id="JP_HRCategory"><label>HR Category</label><label xml:lang="ja-JP">人事区分</label></hris-field>
+    <hris-field id="custom-string2" odata-property="customString2" visibility="both" required="false" picklist-id="JP_AppraisalRank"><label>Appraisal Rank</label><label xml:lang="ja-JP">評価ランク</label></hris-field>
+    <hris-field id="custom-string3" odata-property="customString3" visibility="both" required="false" picklist-id="JP_Position"><label>Managerial Title</label><label xml:lang="ja-JP">役職</label></hris-field>
+    <hris-field id="custom-date1" odata-property="customDate1" visibility="both" required="false"><label>Last Grade Change Date</label><label xml:lang="ja-JP">最終等級変更日</label></hris-field>
+    <hris-field id="custom-date2" odata-property="customDate2" visibility="both" required="false"><label>Title Appointment Date</label><label xml:lang="ja-JP">役職任命日</label></hris-field>
+    <hris-field id="custom-date3" odata-property="customDate3" visibility="both" required="false"><label>Secondment Start Date</label><label xml:lang="ja-JP">出向開始日</label></hris-field>
+    <hris-field id="custom-long1" odata-property="customLong1" visibility="both" required="false"><label>Years in Grade</label><label xml:lang="ja-JP">等級在籍年数</label></hris-field>
+    <hris-field id="custom-boolean1" odata-property="customBoolean1" visibility="both" required="false"><label>Discretionary Work Flag</label><label xml:lang="ja-JP">裁量労働対象</label></hris-field>
+  </hris-element>
+  <hris-element id="employmentInfo" odata-entity="EmpEmployment">
+    <label>Employment Details</label><label xml:lang="ja-JP">雇用情報</label>
+    <hris-field id="person-id-external" odata-property="personIdExternal" visibility="both" required="true"><label>Person ID</label><label xml:lang="ja-JP">個人ID</label></hris-field>
+    <hris-field id="user-id" odata-property="userId" visibility="both" required="true"><label>User ID</label><label xml:lang="ja-JP">ユーザーID</label></hris-field>
+    <hris-field id="start-date" odata-property="startDate" visibility="both" required="true"><label>Hire Date</label><label xml:lang="ja-JP">入社日</label></hris-field>
+    <hris-field id="original-start-date" odata-property="originalStartDate" visibility="both" required="false"><label>Original Start Date</label><label xml:lang="ja-JP">当初入社日</label></hris-field>
+    <hris-field id="seniority-date" odata-property="seniorityDate" visibility="both" required="false"><label>Seniority Start Date</label><label xml:lang="ja-JP">勤続起算日</label></hris-field>
+    <hris-field id="end-date" odata-property="endDate" visibility="both" required="false"><label>Termination Date</label><label xml:lang="ja-JP">退職日</label></hris-field>
+    <hris-field id="last-date-worked" odata-property="lastDateWorked" visibility="both" required="false"><label>Last Date Worked</label><label xml:lang="ja-JP">最終勤務日</label></hris-field>
+    <hris-field id="is-contingent-worker" odata-property="isContingentWorker" visibility="both" required="false"><label>Is Contingent Worker</label><label xml:lang="ja-JP">外部人材</label></hris-field>
+    <hris-field id="custom-date1" odata-property="customDate1" visibility="both" required="false"><label>Group Hire Date</label><label xml:lang="ja-JP">グループ入社日</label></hris-field>
+    <hris-field id="custom-date2" odata-property="customDate2" visibility="both" required="false"><label>Retirement Age Date</label><label xml:lang="ja-JP">定年到達日</label></hris-field>
+  </hris-element>
+  <hris-element id="personInfo" odata-entity="PerPerson">
+    <label>Biographical Information</label><label xml:lang="ja-JP">個人情報（基本）</label>
+    <hris-field id="person-id-external" odata-property="personIdExternal" visibility="both" required="true"><label>Person ID</label><label xml:lang="ja-JP">個人ID</label></hris-field>
+    <hris-field id="date-of-birth" odata-property="dateOfBirth" visibility="both" required="false"><label>Date Of Birth</label><label xml:lang="ja-JP">生年月日</label></hris-field>
+    <hris-field id="country-of-birth" odata-property="countryOfBirth" visibility="both" required="false"><label>Country Of Birth</label><label xml:lang="ja-JP">出生国</label></hris-field>
+  </hris-element>
+  <hris-element id="personalInfo" odata-entity="PerPersonal">
+    <label>Personal Information</label><label xml:lang="ja-JP">個人情報</label>
+    <hris-field id="person-id-external" odata-property="personIdExternal" visibility="both" required="true"><label>Person ID</label><label xml:lang="ja-JP">個人ID</label></hris-field>
+    <hris-field id="start-date" odata-property="startDate" visibility="both" required="true"><label>Start Date</label><label xml:lang="ja-JP">有効開始日</label></hris-field>
+    <hris-field id="last-name" odata-property="lastName" visibility="both" required="true"><label>Last Name</label><label xml:lang="ja-JP">姓</label></hris-field>
+    <hris-field id="first-name" odata-property="firstName" visibility="both" required="true"><label>First Name</label><label xml:lang="ja-JP">名</label></hris-field>
+    <hris-field id="custom-string1" odata-property="lastNameAlt1" visibility="both" required="false"><label>Last Name (Kana)</label><label xml:lang="ja-JP">姓（カナ）</label></hris-field>
+    <hris-field id="custom-string2" odata-property="firstNameAlt1" visibility="both" required="false"><label>First Name (Kana)</label><label xml:lang="ja-JP">名（カナ）</label></hris-field>
+    <hris-field id="gender" odata-property="gender" visibility="both" required="false" picklist-id="GENDER"><label>Gender</label><label xml:lang="ja-JP">性別</label></hris-field>
+    <hris-field id="marital-status" odata-property="maritalStatus" visibility="both" required="false" picklist-id="ecMaritalStatus"><label>Marital Status</label><label xml:lang="ja-JP">婚姻状況</label></hris-field>
+    <hris-field id="nationality" odata-property="nationality" visibility="both" required="false"><label>Nationality</label><label xml:lang="ja-JP">国籍</label></hris-field>
+  </hris-element>
+  <hris-element id="compInfo" odata-entity="EmpCompensation">
+    <label>Compensation Information</label><label xml:lang="ja-JP">報酬情報</label>
+    <hris-field id="user-id" odata-property="userId" visibility="both" required="true"><label>User ID</label><label xml:lang="ja-JP">ユーザーID</label></hris-field>
+    <hris-field id="start-date" odata-property="startDate" visibility="both" required="true"><label>Event Date</label><label xml:lang="ja-JP">発令日</label></hris-field>
+    <hris-field id="seq-number" odata-property="seqNumber" visibility="both" required="true"><label>Sequence Number</label><label xml:lang="ja-JP">連番</label></hris-field>
+    <hris-field id="event" odata-property="event" visibility="both" required="true" picklist-id="event"><label>Event</label><label xml:lang="ja-JP">イベント</label></hris-field>
+    <hris-field id="event-reason" odata-property="eventReason" visibility="both" required="true"><label>Event Reason</label><label xml:lang="ja-JP">イベント事由</label></hris-field>
+    <hris-field id="pay-group" odata-property="payGroup" visibility="both" required="false"><label>Pay Group</label><label xml:lang="ja-JP">給与グループ</label></hris-field>
+    <hris-field id="is-eligible-for-benefit" odata-property="isEligibleForBenefit" visibility="both" required="false"><label>Benefits Eligible</label><label xml:lang="ja-JP">福利厚生対象</label></hris-field>
+  </hris-element>
+  <hris-element id="payComponentRecurring" odata-entity="EmpPayCompRecurring">
+    <label>Recurring Pay Component</label><label xml:lang="ja-JP">定期報酬</label>
+    <hris-field id="user-id" odata-property="userId" visibility="both" required="true"><label>User ID</label><label xml:lang="ja-JP">ユーザーID</label></hris-field>
+    <hris-field id="start-date" odata-property="startDate" visibility="both" required="true"><label>Event Date</label><label xml:lang="ja-JP">発令日</label></hris-field>
+    <hris-field id="seq-number" odata-property="seqNumber" visibility="both" required="true"><label>Sequence Number</label><label xml:lang="ja-JP">連番</label></hris-field>
+    <hris-field id="pay-component" odata-property="payComponent" visibility="both" required="true"><label>Pay Component</label><label xml:lang="ja-JP">報酬項目</label></hris-field>
+    <hris-field id="paycompvalue" odata-property="paycompvalue" visibility="both" required="true"><label>Amount</label><label xml:lang="ja-JP">金額</label></hris-field>
+    <hris-field id="currency-code" odata-property="currencyCode" visibility="both" required="true"><label>Currency</label><label xml:lang="ja-JP">通貨</label></hris-field>
+    <hris-field id="frequency" odata-property="frequency" visibility="both" required="true"><label>Frequency</label><label xml:lang="ja-JP">頻度</label></hris-field>
+  </hris-element>
+</succession-data-model>

@@ -1,0 +1,43 @@
+{
+  "_comment": "メタデータに含まれない情報（オブジェクト区分、ナビゲーション、意味の説明、同義語、型の補正）。build_catalog.py が metadata と合わせて data/catalog.js を作る。",
+  "tenant": "Demo Corp",
+  "kinds": {
+    "EmpJob": "EC", "EmpEmployment": "EC", "PerPerson": "EC", "PerPersonal": "EC",
+    "EmpCompensation": "EC", "EmpPayCompRecurring": "EC",
+    "FOEventReason": "Foundation", "FOPayGrade": "Foundation", "FODepartment": "Foundation",
+    "cust_PromotionHistory": "MDF", "cust_Qualification": "MDF"
+  },
+  "nav": {
+    "EmpJob": ["EmpEmployment", "PerPerson", "FOEventReason", "FOPayGrade", "FODepartment"],
+    "EmpEmployment": ["PerPerson"],
+    "EmpCompensation": ["EmpEmployment", "PerPerson", "FOEventReason"],
+    "EmpPayCompRecurring": ["EmpCompensation"],
+    "cust_PromotionHistory": ["FOPayGrade"]
+  },
+  "types": {
+    "EmpJob.eventReason": "eventReason",
+    "EmpCompensation.eventReason": "eventReason"
+  },
+  "fields": {
+    "EmpJob.startDate": {"desc": "この職務情報レコードの有効開始日", "syn": ["有効日", "効力発生日", "effective date"]},
+    "EmpJob.event": {"desc": "人事イベントの種類（入社、昇進・昇格、異動、退職など）", "syn": ["人事イベント"]},
+    "EmpJob.eventReason": {"desc": "人事イベントの理由。値は FOEventReason から取得", "syn": ["発令事由", "異動理由", "事由"]},
+    "EmpJob.payGrade": {"desc": "等級。値は FOPayGrade から取得", "syn": ["グレード", "職位等級"]},
+    "EmpJob.employeeClass": {"syn": ["雇用区分", "社員種別"]},
+    "EmpJob.probationPeriodEndDate": {"desc": "試用期間の最終日", "syn": ["試用期間満了日", "試用終了日"]},
+    "EmpJob.customString3": {"desc": "管理職の役職。値は picklist JP_Position から取得", "syn": ["ポスト", "管理職", "職位"]},
+    "EmpJob.customDate1": {"desc": "等級が最後に変更された日付（カスタム項目）", "syn": ["等級変更日", "grade change"]},
+    "EmpJob.customDate2": {"desc": "現在の役職に任命された日", "syn": ["役職発令日"]},
+    "EmpJob.customDate3": {"desc": "出向を開始した日", "syn": ["出向日"]},
+    "EmpJob.customLong1": {"desc": "現在の等級での在籍年数", "syn": ["等級滞留年数"]},
+    "EmpJob.customBoolean1": {"desc": "裁量労働制の対象者かどうか", "syn": ["裁量労働", "裁量労働制", "みなし労働"]},
+    "EmpEmployment.startDate": {"desc": "この会社への入社日", "syn": ["入社年月日", "hire date"]},
+    "EmpEmployment.originalStartDate": {"desc": "最初に入社した日（再雇用前を含む）", "syn": ["初回入社日"]},
+    "EmpEmployment.endDate": {"desc": "退職日", "syn": ["離職日"]},
+    "EmpEmployment.customDate1": {"desc": "グループ会社に最初に入社した日", "syn": ["グループ入社年月日"]},
+    "EmpEmployment.customDate2": {"desc": "定年年齢に到達する日", "syn": ["定年日", "定年年月日"]},
+    "PerPerson.dateOfBirth": {"desc": "生年月日", "syn": ["誕生日", "birthday"]},
+    "cust_PromotionHistory.effectiveStartDate": {"desc": "昇進・昇格の発令日", "syn": ["昇格日"]},
+    "cust_Qualification.cust_acquiredDate": {"desc": "資格を取得した日", "syn": ["資格取得日"]}
+  }
+}

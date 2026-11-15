@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- DEMO DATA: fictional tenant "Demo Corp". Not from any real customer. -->
+<edmx:Edmx Version="1.0" xmlns:edmx="http://schemas.microsoft.com/ado/2007/06/edmx" xmlns:m="http://schemas.microsoft.com/ado/2007/08/dataservices/metadata" xmlns:sap="http://www.successfactors.com/edm/sap">
+  <edmx:DataServices m:DataServiceVersion="2.0">
+    <Schema Namespace="SFOData" xmlns="http://schemas.microsoft.com/ado/2008/09/edm">
+      <EntityType Name="EmpJob" sap:label="職務情報">
+        <Key><PropertyRef Name="seqNumber"/><PropertyRef Name="startDate"/><PropertyRef Name="userId"/></Key>
+        <Property Name="userId" Type="Edm.String" Nullable="false" sap:required="true" sap:label="ユーザーID" MaxLength="128"/>
+        <Property Name="startDate" Type="Edm.DateTime" Nullable="false" sap:required="true" sap:label="発令日"/>
+        <Property Name="endDate" Type="Edm.DateTime" Nullable="true" sap:required="false" sap:label="終了日"/>
+        <Property Name="seqNumber" Type="Edm.Int64" Nullable="false" sap:required="true" sap:label="連番"/>
+        <Property Name="event" Type="Edm.String" Nullable="false" sap:required="true" sap:label="イベント" MaxLength="128" sap:picklist="event"/>
+        <Property Name="eventReason" Type="Edm.String" Nullable="false" sap:required="true" sap:label="イベント事由" MaxLength="128"/>
+        <Property Name="company" Type="Edm.String" Nullable="false" sap:required="true" sap:label="会社" MaxLength="128"/>
+        <Property Name="businessUnit" Type="Edm.String" Nullable="true" sap:required="false" sap:label="事業本部" MaxLength="128"/>
+        <Property Name="division" Type="Edm.String" Nullable="true" sap:required="false" sap:label="事業部" MaxLength="128"/>
+        <Property Name="department" Type="Edm.String" Nullable="true" sap:required="false" sap:label="部署" MaxLength="128"/>
+        <Property Name="location" Type="Edm.String" Nullable="true" sap:required="false" sap:label="勤務地" MaxLength="128"/>
+        <Property Name="jobCode" Type="Edm.String" Nullable="true" sap:required="false" sap:label="職務コード" MaxLength="128"/>
+        <Property Name="jobTitle" Type="Edm.String" Nullable="true" sap:required="false" sap:label="職務名" MaxLength="128"/>
+        <Property Name="payGrade" Type="Edm.String" Nullable="true" sap:required="false" sap:label="等級" MaxLength="128"/>
+        <Property Name="managerId" Type="Edm.String" Nullable="true" sap:required="false" sap:label="上長" MaxLength="128"/>
+        <Property Name="employeeClass" Type="Edm.String" Nullable="true" sap:required="false" sap:label="社員区分" MaxLength="128" sap:picklist="employeeclass"/>
+        <Property Name="employmentType" Type="Edm.String" Nullable="true" sap:required="false" sap:label="雇用形態" MaxLength="128" sap:picklist="employmentType"/>
+        <Property Name="emplStatus" Type="Edm.String" Nullable="true" sap:required="false" sap:label="在籍ステータス" MaxLength="128" sap:picklist="employee-status"/>
+        <Property Name="standardHours" Type="Edm.Decimal" Nullable="true" sap:required="false" sap:label="所定労働時間（週）"/>
+        <Property Name="fte" Type="Edm.Decimal" Nullable="true" sap:required="false" sap:label="FTE"/>
+        <Property Name="probationPeriodEndDate" Type="Edm.DateTime" Nullable="true" sap:required="false" sap:label="試用期間終了日"/>
+        <Property Name="customString1" Type="Edm.String" Nullable="true" sap:required="false" sap:label="人事区分" MaxLength="128" sap:picklist="JP_HRCategory"/>
+        <Property Name="customString2" Type="Edm.String" Nullable="true" sap:required="false" sap:label="評価ランク" MaxLength="128" sap:picklist="JP_AppraisalRank"/>
+        <Property Name="customString3" Type="Edm.String" Nullable="true" sap:required="false" sap:label="役職" MaxLength="128" sap:picklist="JP_Position"/>
+        <Property Name="customDate1" Type="Edm.DateTime" Nullable="true" sap:required="false" sap:label="最終等級変更日"/>
+        <Property Name="customDate2" Type="Edm.DateTime" Nullable="true" sap:required="false" sap:label="役職任命日"/>
+        <Property Name="customDate3" Type="Edm.DateTime" Nullable="true" sap:required="false" sap:label="出向開始日"/>
+        <Property Name="customLong1" Type="Edm.Int64" Nullable="true" sap:required="false" sap:label="等級在籍年数"/>
+        <Property Name="customBoolean1" Type="Edm.Boolean" Nullable="true" sap:required="false" sap:label="裁量労働対象"/>
+      </EntityType>
+      <EntityType Name="EmpEmployment" sap:label="雇用情報">
+        <Key><PropertyRef Name="personIdExternal"/><PropertyRef Name="userId"/></Key>
+        <Property Name="personIdExternal" Type="Edm.String" Nullable="false" sap:required="true" sap:label="個人ID" MaxLength="128"/>
+        <Property Name="userId" Type="Edm.String" Nullable="false" sap:required="true" sap:label="ユーザーID" MaxLength="128"/>
+        <Property Name="startDate" Type="Edm.DateTime" Nullable="false" sap:required="true" sap:label="入社日"/>
+        <Property Name="originalStartDate" Type="Edm.DateTime" Nullable="true" sap:required="false" sap:label="当初入社日"/>
+        <Property Name="seniorityDate" Type="Edm.DateTime" Nullable="true" sap:required="false" sap:label="勤続起算日"/>
+        <Property Name="endDate" Type="Edm.DateTime" Nullable="true" sap:required="false" sap:label="退職日"/>
+        <Property Name="lastDateWorked" Type="Edm.DateTime" Nullable="true" sap:required="false" sap:label="最終勤務日"/>
+        <Property Name="isContingentWorker" Type="Edm.Boolean" Nullable="true" sap:required="false" sap:label="外部人材"/>
+        <Property Name="customDate1" Type="Edm.DateTime" Nullable="true" sap:required="false" sap:label="グループ入社日"/>
+        <Property Name="customDate2" Type="Edm.DateTime" Nullable="true" sap:required="false" sap:label="定年到達日"/>
+      </EntityType>
+      <EntityType Name="PerPerson" sap:label="個人情報（基本）">
+        <Key><PropertyRef Name="personIdExternal"/></Key>
+        <Property Name="personIdExternal" Type="Edm.String" Nullable="false" sap:required="true" sap:label="個人ID" MaxLength="128"/>
+        <Property Name="dateOfBirth" Type="Edm.DateTime" Nullable="true" sap:required="false" sap:label="生年月日"/>
+        <Property Name="countryOfBirth" Type="Edm.String" Nullable="true" sap:required="false" sap:label="出生国" MaxLength="128"/>
+      </EntityType>
+      <EntityType Name="PerPersonal" sap:label="個人情報">
+        <Key><PropertyRef Name="personIdExternal"/><PropertyRef Name="startDate"/></Key>
+        <Property Name="personIdExternal" Type="Edm.String" Nullable="false" sap:required="true" sap:label="個人ID" MaxLength="128"/>
+        <Property Name="startDate" Type="Edm.DateTime" Nullable="false" sap:required="true" sap:label="有効開始日"/>
+        <Property Name="lastName" Type="Edm.String" Nullable="false" sap:required="true" sap:label="姓" MaxLength="128"/>
+        <Property Name="firstName" Type="Edm.String" Nullable="false" sap:required="true" sap:label="名" MaxLength="128"/>
+        <Property Name="lastNameAlt1" Type="Edm.String" Nullable="true" sap:required="false" sap:label="姓（カナ）" MaxLength="128"/>
+        <Property Name="firstNameAlt1" Type="Edm.String" Nullable="true" sap:required="false" sap:label="名（カナ）" MaxLength="128"/>
+        <Property Name="gender" Type="Edm.String" Nullable="true" sap:required="false" sap:label="性別" MaxLength="128" sap:picklist="GENDER"/>
+        <Property Name="maritalStatus" Type="Edm.String" Nullable="true" sap:required="false" sap:label="婚姻状況" MaxLength="128" sap:picklist="ecMaritalStatus"/>
+        <Property Name="nationality" Type="Edm.String" Nullable="true" sap:required="false" sap:label="国籍" MaxLength="128"/>
+      </EntityType>
+      <EntityType Name="EmpCompensation" sap:label="報酬情報">
+        <Key><PropertyRef Name="seqNumber"/><PropertyRef Name="startDate"/><PropertyRef Name="userId"/></Key>
+        <Property Name="userId" Type="Edm.String" Nullable="false" sap:required="true" sap:label="ユーザーID" MaxLength="128"/>
+        <Property Name="startDate" Type="Edm.DateTime" Nullable="false" sap:required="true" sap:label="発令日"/>
+        <Property Name="seqNumber" Type="Edm.Int64" Nullable="false" sap:required="true" sap:label="連番"/>
+        <Property Name="event" Type="Edm.String" Nullable="false" sap:required="true" sap:label="イベント" MaxLength="128" sap:picklist="event"/>
+        <Property Name="eventReason" Type="Edm.String" Nullable="false" sap:required="true" sap:label="イベント事由" MaxLength="128"/>
+        <Property Name="payGroup" Type="Edm.String" Nullable="true" sap:required="false" sap:label="給与グループ" MaxLength="128"/>
+        <Property Name="isEligibleForBenefit" Type="Edm.Boolean" Nullable="true" sap:required="false" sap:label="福利厚生対象"/>
+      </EntityType>
+      <EntityType Name="EmpPayCompRecurring" sap:label="定期報酬">
+        <Key><PropertyRef Name="payComponent"/><PropertyRef Name="seqNumber"/><PropertyRef Name="startDate"/><PropertyRef Name="userId"/></Key>
+        <Property Name="userId" Type="Edm.String" Nullable="false" sap:required="true" sap:label="ユーザーID" MaxLength="128"/>
+        <Property Name="startDate" Type="Edm.DateTime" Nullable="false" sap:required="true" sap:label="発令日"/>
+        <Property Name="seqNumber" Type="Edm.Int64" Nullable="false" sap:required="true" sap:label="連番"/>
+        <Property Name="payComponent" Type="Edm.String" Nullable="false" sap:required="true" sap:label="報酬項目" MaxLength="128"/>
+        <Property Name="paycompvalue" Type="Edm.Decimal" Nullable="false" sap:required="true" sap:label="金額"/>
+        <Property Name="currencyCode" Type="Edm.String" Nullable="false" sap:required="true" sap:label="通貨" MaxLength="128"/>
+        <Property Name="frequency" Type="Edm.String" Nullable="false" sap:required="true" sap:label="頻度" MaxLength="128"/>
+      </EntityType>
+      <EntityType Name="FOEventReason" sap:label="イベント事由">
+        <Key><PropertyRef Name="externalCode"/><PropertyRef Name="startDate"/></Key>
+        <Property Name="externalCode" Type="Edm.String" Nullable="false" sap:required="true" sap:label="コード" MaxLength="128"/>
+        <Property Name="startDate" Type="Edm.DateTime" Nullable="false" sap:required="true" sap:label="有効開始日"/>
+        <Property Name="name" Type="Edm.String" Nullable="false" sap:required="true" sap:label="名称" MaxLength="128"/>
+        <Property Name="event" Type="Edm.String" Nullable="false" sap:required="true" sap:label="イベント" MaxLength="128" sap:picklist="event"/>
+        <Property Name="status" Type="Edm.String" Nullable="false" sap:required="true" sap:label="ステータス" MaxLength="128" sap:picklist="status"/>
+      </EntityType>
+      <EntityType Name="FOPayGrade" sap:label="等級">
+        <Key><PropertyRef Name="externalCode"/><PropertyRef Name="startDate"/></Key>
+        <Property Name="externalCode" Type="Edm.String" Nullable="false" sap:required="true" sap:label="コード" MaxLength="128"/>
+        <Property Name="startDate" Type="Edm.DateTime" Nullable="false" sap:required="true" sap:label="有効開始日"/>
+        <Property Name="name" Type="Edm.String" Nullable="false" sap:required="true" sap:label="名称" MaxLength="128"/>
+        <Property Name="paygradeLevel" Type="Edm.Int64" Nullable="true" sap:required="false" sap:label="等級レベル"/>
+        <Property Name="status" Type="Edm.String" Nullable="false" sap:required="true" sap:label="ステータス" MaxLength="128" sap:picklist="status"/>
+      </EntityType>
+      <EntityType Name="FODepartment" sap:label="部署">
+        <Key><PropertyRef Name="externalCode"/><PropertyRef Name="startDate"/></Key>
+        <Property Name="externalCode" Type="Edm.String" Nullable="false" sap:required="true" sap:label="コード" MaxLength="128"/>
+        <Property Name="startDate" Type="Edm.DateTime" Nullable="false" sap:required="true" sap:label="有効開始日"/>
+        <Property Name="name" Type="Edm.String" Nullable="false" sap:required="true" sap:label="名称" MaxLength="128"/>
+        <Property Name="headOfUnit" Type="Edm.String" Nullable="true" sap:required="false" sap:label="部署長" MaxLength="128"/>
+        <Property Name="status" Type="Edm.String" Nullable="false" sap:required="true" sap:label="ステータス" MaxLength="128" sap:picklist="status"/>
+      </EntityType>
+      <EntityType Name="cust_PromotionHistory" sap:label="昇進昇格履歴">
+        <Key><PropertyRef Name="externalCode"/><PropertyRef Name="effectiveStartDate"/></Key>
+        <Property Name="externalCode" Type="Edm.String" Nullable="false" sap:required="true" sap:label="コード" MaxLength="128"/>
+        <Property Name="effectiveStartDate" Type="Edm.DateTime" Nullable="false" sap:required="true" sap:label="有効開始日"/>
+        <Property Name="cust_user" Type="Edm.String" Nullable="false" sap:required="true" sap:label="対象者" MaxLength="128"/>
+        <Property Name="cust_fromGrade" Type="Edm.String" Nullable="true" sap:required="false" sap:label="変更前等級" MaxLength="128"/>
+        <Property Name="cust_toGrade" Type="Edm.String" Nullable="true" sap:required="false" sap:label="変更後等級" MaxLength="128"/>
+        <Property Name="cust_promotionType" Type="Edm.String" Nullable="true" sap:required="false" sap:label="昇格区分" MaxLength="128" sap:picklist="JP_PromotionType"/>
+        <Property Name="cust_approvedDate" Type="Edm.DateTime" Nullable="true" sap:required="false" sap:label="承認日"/>
+      </EntityType>
+      <EntityType Name="cust_Qualification" sap:label="保有資格">
+        <Key><PropertyRef Name="externalCode"/><PropertyRef Name="effectiveStartDate"/></Key>
+        <Property Name="externalCode" Type="Edm.String" Nullable="false" sap:required="true" sap:label="コード" MaxLength="128"/>
+        <Property Name="effectiveStartDate" Type="Edm.DateTime" Nullable="false" sap:required="true" sap:label="有効開始日"/>
+        <Property Name="cust_user" Type="Edm.String" Nullable="false" sap:required="true" sap:label="対象者" MaxLength="128"/>
+        <Property Name="cust_qualification" Type="Edm.String" Nullable="false" sap:required="true" sap:label="資格" MaxLength="128" sap:picklist="JP_Qualification"/>
+        <Property Name="cust_acquiredDate" Type="Edm.DateTime" Nullable="true" sap:required="false" sap:label="取得日"/>
+        <Property Name="cust_expiryDate" Type="Edm.DateTime" Nullable="true" sap:required="false" sap:label="有効期限"/>
+        <Property Name="cust_allowanceEligible" Type="Edm.Boolean" Nullable="true" sap:required="false" sap:label="資格手当対象"/>
+      </EntityType>
+      <EntityContainer Name="EntityContainer" m:IsDefaultEntityContainer="true">
+        <EntitySet Name="EmpJob" EntityType="SFOData.EmpJob"/>
+        <EntitySet Name="EmpEmployment" EntityType="SFOData.EmpEmployment"/>
+        <EntitySet Name="PerPerson" EntityType="SFOData.PerPerson"/>
+        <EntitySet Name="PerPersonal" EntityType="SFOData.PerPersonal"/>
+        <EntitySet Name="EmpCompensation" EntityType="SFOData.EmpCompensation"/>
+        <EntitySet Name="EmpPayCompRecurring" EntityType="SFOData.EmpPayCompRecurring"/>
+        <EntitySet Name="FOEventReason" EntityType="SFOData.FOEventReason"/>
+        <EntitySet Name="FOPayGrade" EntityType="SFOData.FOPayGrade"/>
+        <EntitySet Name="FODepartment" EntityType="SFOData.FODepartment"/>
+        <EntitySet Name="cust_PromotionHistory" EntityType="SFOData.cust_PromotionHistory"/>
+        <EntitySet Name="cust_Qualification" EntityType="SFOData.cust_Qualification"/>
+      </EntityContainer>
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>

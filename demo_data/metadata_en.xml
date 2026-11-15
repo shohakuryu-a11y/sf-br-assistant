@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- DEMO DATA: fictional tenant "Demo Corp". Not from any real customer. -->
+<edmx:Edmx Version="1.0" xmlns:edmx="http://schemas.microsoft.com/ado/2007/06/edmx" xmlns:m="http://schemas.microsoft.com/ado/2007/08/dataservices/metadata" xmlns:sap="http://www.successfactors.com/edm/sap">
+  <edmx:DataServices m:DataServiceVersion="2.0">
+    <Schema Namespace="SFOData" xmlns="http://schemas.microsoft.com/ado/2008/09/edm">
+      <EntityType Name="EmpJob" sap:label="Job Information">
+        <Key><PropertyRef Name="seqNumber"/><PropertyRef Name="startDate"/><PropertyRef Name="userId"/></Key>
+        <Property Name="userId" Type="Edm.String" Nullable="false" sap:required="true" sap:label="User ID" MaxLength="128"/>
+        <Property Name="startDate" Type="Edm.DateTime" Nullable="false" sap:required="true" sap:label="Event Date"/>
+        <Property Name="endDate" Type="Edm.DateTime" Nullable="true" sap:required="false" sap:label="End Date"/>
+        <Property Name="seqNumber" Type="Edm.Int64" Nullable="false" sap:required="true" sap:label="Sequence Number"/>
+        <Property Name="event" Type="Edm.String" Nullable="false" sap:required="true" sap:label="Event" MaxLength="128" sap:picklist="event"/>
+        <Property Name="eventReason" Type="Edm.String" Nullable="false" sap:required="true" sap:label="Event Reason" MaxLength="128"/>
+        <Property Name="company" Type="Edm.String" Nullable="false" sap:required="true" sap:label="Company" MaxLength="128"/>
+        <Property Name="businessUnit" Type="Edm.String" Nullable="true" sap:required="false" sap:label="Business Unit" MaxLength="128"/>
+        <Property Name="division" Type="Edm.String" Nullable="true" sap:required="false" sap:label="Division" MaxLength="128"/>
+        <Property Name="department" Type="Edm.String" Nullable="true" sap:required="false" sap:label="Department" MaxLength="128"/>
+        <Property Name="location" Type="Edm.String" Nullable="true" sap:required="false" sap:label="Location" MaxLength="128"/>
+        <Property Name="jobCode" Type="Edm.String" Nullable="true" sap:required="false" sap:label="Job Classification" MaxLength="128"/>
+        <Property Name="jobTitle" Type="Edm.String" Nullable="true" sap:required="false" sap:label="Job Title" MaxLength="128"/>
+        <Property Name="payGrade" Type="Edm.String" Nullable="true" sap:required="false" sap:label="Pay Grade" MaxLength="128"/>
+        <Property Name="managerId" Type="Edm.String" Nullable="true" sap:required="false" sap:label="Supervisor" MaxLength="128"/>
+        <Property Name="employeeClass" Type="Edm.String" Nullable="true" sap:required="false" sap:label="Employee Class" MaxLength="128" sap:picklist="employeeclass"/>
+        <Property Name="employmentType" Type="Edm.String" Nullable="true" sap:required="false" sap:label="Employment Type" MaxLength="128" sap:picklist="employmentType"/>
+        <Property Name="emplStatus" Type="Edm.String" Nullable="true" sap:required="false" sap:label="Employee Status" MaxLength="128" sap:picklist="employee-status"/>
+        <Property Name="standardHours" Type="Edm.Decimal" Nullable="true" sap:required="false" sap:label="Standard Weekly Hours"/>
+        <Property Name="fte" Type="Edm.Decimal" Nullable="true" sap:required="false" sap:label="FTE"/>
+        <Property Name="probationPeriodEndDate" Type="Edm.DateTime" Nullable="true" sap:required="false" sap:label="Probation Period End Date"/>
+        <Property Name="customString1" Type="Edm.String" Nullable="true" sap:required="false" sap:label="HR Category" MaxLength="128" sap:picklist="JP_HRCategory"/>
+        <Property Name="customString2" Type="Edm.String" Nullable="true" sap:required="false" sap:label="Appraisal Rank" MaxLength="128" sap:picklist="JP_AppraisalRank"/>
+        <Property Name="customString3" Type="Edm.String" Nullable="true" sap:required="false" sap:label="Managerial Title" MaxLength="128" sap:picklist="JP_Position"/>
+        <Property Name="customDate1" Type="Edm.DateTime" Nullable="true" sap:required="false" sap:label="Last Grade Change Date"/>
+        <Property Name="customDate2" Type="Edm.DateTime" Nullable="true" sap:required="false" sap:label="Title Appointment Date"/>
+        <Property Name="customDate3" Type="Edm.DateTime" Nullable="true" sap:required="false" sap:label="Secondment Start Date"/>
+        <Property Name="customLong1" Type="Edm.Int64" Nullable="true" sap:required="false" sap:label="Years in Grade"/>
+        <Property Name="customBoolean1" Type="Edm.Boolean" Nullable="true" sap:required="false" sap:label="Discretionary Work Flag"/>
+      </EntityType>
+      <EntityType Name="EmpEmployment" sap:label="Employment Details">
+        <Key><PropertyRef Name="personIdExternal"/><PropertyRef Name="userId"/></Key>
+        <Property Name="personIdExternal" Type="Edm.String" Nullable="false" sap:required="true" sap:label="Person ID" MaxLength="128"/>
+        <Property Name="userId" Type="Edm.String" Nullable="false" sap:required="true" sap:label="User ID" MaxLength="128"/>
+        <Property Name="startDate" Type="Edm.DateTime" Nullable="false" sap:required="true" sap:label="Hire Date"/>
+        <Property Name="originalStartDate" Type="Edm.DateTime" Nullable="true" sap:required="false" sap:label="Original Start Date"/>
+        <Property Name="seniorityDate" Type="Edm.DateTime" Nullable="true" sap:required="false" sap:label="Seniority Start Date"/>
+        <Property Name="endDate" Type="Edm.DateTime" Nullable="true" sap:required="false" sap:label="Termination Date"/>
+        <Property Name="lastDateWorked" Type="Edm.DateTime" Nullable="true" sap:required="false" sap:label="Last Date Worked"/>
+        <Property Name="isContingentWorker" Type="Edm.Boolean" Nullable="true" sap:required="false" sap:label="Is Contingent Worker"/>
+        <Property Name="customDate1" Type="Edm.DateTime" Nullable="true" sap:required="false" sap:label="Group Hire Date"/>
+        <Property Name="customDate2" Type="Edm.DateTime" Nullable="true" sap:required="false" sap:label="Retirement Age Date"/>
+      </EntityType>
+      <EntityType Name="PerPerson" sap:label="Biographical Information">
+        <Key><PropertyRef Name="personIdExternal"/></Key>
+        <Property Name="personIdExternal" Type="Edm.String" Nullable="false" sap:required="true" sap:label="Person ID" MaxLength="128"/>
+        <Property Name="dateOfBirth" Type="Edm.DateTime" Nullable="true" sap:required="false" sap:label="Date Of Birth"/>
+        <Property Name="countryOfBirth" Type="Edm.String" Nullable="true" sap:required="false" sap:label="Country Of Birth" MaxLength="128"/>
+      </EntityType>
+      <EntityType Name="PerPersonal" sap:label="Personal Information">
+        <Key><PropertyRef Name="personIdExternal"/><PropertyRef Name="startDate"/></Key>
+        <Property Name="personIdExternal" Type="Edm.String" Nullable="false" sap:required="true" sap:label="Person ID" MaxLength="128"/>
+        <Property Name="startDate" Type="Edm.DateTime" Nullable="false" sap:required="true" sap:label="Start Date"/>
+        <Property Name="lastName" Type="Edm.String" Nullable="false" sap:required="true" sap:label="Last Name" MaxLength="128"/>
+        <Property Name="firstName" Type="Edm.String" Nullable="false" sap:required="true" sap:label="First Name" MaxLength="128"/>
+        <Property Name="lastNameAlt1" Type="Edm.String" Nullable="true" sap:required="false" sap:label="Last Name (Kana)" MaxLength="128"/>
+        <Property Name="firstNameAlt1" Type="Edm.String" Nullable="true" sap:required="false" sap:label="First Name (Kana)" MaxLength="128"/>
+        <Property Name="gender" Type="Edm.String" Nullable="true" sap:required="false" sap:label="Gender" MaxLength="128" sap:picklist="GENDER"/>
+        <Property Name="maritalStatus" Type="Edm.String" Nullable="true" sap:required="false" sap:label="Marital Status" MaxLength="128" sap:picklist="ecMaritalStatus"/>
+        <Property Name="nationality" Type="Edm.String" Nullable="true" sap:required="false" sap:label="Nationality" MaxLength="128"/>
+      </EntityType>
+      <EntityType Name="EmpCompensation" sap:label="Compensation Information">
+        <Key><PropertyRef Name="seqNumber"/><PropertyRef Name="startDate"/><PropertyRef Name="userId"/></Key>
+        <Property Name="userId" Type="Edm.String" Nullable="false" sap:required="true" sap:label="User ID" MaxLength="128"/>
+        <Property Name="startDate" Type="Edm.DateTime" Nullable="false" sap:required="true" sap:label="Event Date"/>
+        <Property Name="seqNumber" Type="Edm.Int64" Nullable="false" sap:required="true" sap:label="Sequence Number"/>
+        <Property Name="event" Type="Edm.String" Nullable="false" sap:required="true" sap:label="Event" MaxLength="128" sap:picklist="event"/>
+        <Property Name="eventReason" Type="Edm.String" Nullable="false" sap:required="true" sap:label="Event Reason" MaxLength="128"/>
+        <Property Name="payGroup" Type="Edm.String" Nullable="true" sap:required="false" sap:label="Pay Group" MaxLength="128"/>
+        <Property Name="isEligibleForBenefit" Type="Edm.Boolean" Nullable="true" sap:required="false" sap:label="Benefits Eligible"/>
+      </EntityType>
+      <EntityType Name="EmpPayCompRecurring" sap:label="Recurring Pay Component">
+        <Key><PropertyRef Name="payComponent"/><PropertyRef Name="seqNumber"/><PropertyRef Name="startDate"/><PropertyRef Name="userId"/></Key>
+        <Property Name="userId" Type="Edm.String" Nullable="false" sap:required="true" sap:label="User ID" MaxLength="128"/>
+        <Property Name="startDate" Type="Edm.DateTime" Nullable="false" sap:required="true" sap:label="Event Date"/>
+        <Property Name="seqNumber" Type="Edm.Int64" Nullable="false" sap:required="true" sap:label="Sequence Number"/>
+        <Property Name="payComponent" Type="Edm.String" Nullable="false" sap:required="true" sap:label="Pay Component" MaxLength="128"/>
+        <Property Name="paycompvalue" Type="Edm.Decimal" Nullable="false" sap:required="true" sap:label="Amount"/>
+        <Property Name="currencyCode" Type="Edm.String" Nullable="false" sap:required="true" sap:label="Currency" MaxLength="128"/>
+        <Property Name="frequency" Type="Edm.String" Nullable="false" sap:required="true" sap:label="Frequency" MaxLength="128"/>
+      </EntityType>
+      <EntityType Name="FOEventReason" sap:label="Event Reason">
+        <Key><PropertyRef Name="externalCode"/><PropertyRef Name="startDate"/></Key>
+        <Property Name="externalCode" Type="Edm.String" Nullable="false" sap:required="true" sap:label="Code" MaxLength="128"/>
+        <Property Name="startDate" Type="Edm.DateTime" Nullable="false" sap:required="true" sap:label="Start Date"/>
+        <Property Name="name" Type="Edm.String" Nullable="false" sap:required="true" sap:label="Name" MaxLength="128"/>
+        <Property Name="event" Type="Edm.String" Nullable="false" sap:required="true" sap:label="Event" MaxLength="128" sap:picklist="event"/>
+        <Property Name="status" Type="Edm.String" Nullable="false" sap:required="true" sap:label="Status" MaxLength="128" sap:picklist="status"/>
+      </EntityType>
+      <EntityType Name="FOPayGrade" sap:label="Pay Grade">
+        <Key><PropertyRef Name="externalCode"/><PropertyRef Name="startDate"/></Key>
+        <Property Name="externalCode" Type="Edm.String" Nullable="false" sap:required="true" sap:label="Code" MaxLength="128"/>
+        <Property Name="startDate" Type="Edm.DateTime" Nullable="false" sap:required="true" sap:label="Start Date"/>
+        <Property Name="name" Type="Edm.String" Nullable="false" sap:required="true" sap:label="Name" MaxLength="128"/>
+        <Property Name="paygradeLevel" Type="Edm.Int64" Nullable="true" sap:required="false" sap:label="Pay Grade Level"/>
+        <Property Name="status" Type="Edm.String" Nullable="false" sap:required="true" sap:label="Status" MaxLength="128" sap:picklist="status"/>
+      </EntityType>
+      <EntityType Name="FODepartment" sap:label="Department">
+        <Key><PropertyRef Name="externalCode"/><PropertyRef Name="startDate"/></Key>
+        <Property Name="externalCode" Type="Edm.String" Nullable="false" sap:required="true" sap:label="Code" MaxLength="128"/>
+        <Property Name="startDate" Type="Edm.DateTime" Nullable="false" sap:required="true" sap:label="Start Date"/>
+        <Property Name="name" Type="Edm.String" Nullable="false" sap:required="true" sap:label="Name" MaxLength="128"/>
+        <Property Name="headOfUnit" Type="Edm.String" Nullable="true" sap:required="false" sap:label="Head of Unit" MaxLength="128"/>
+        <Property Name="status" Type="Edm.String" Nullable="false" sap:required="true" sap:label="Status" MaxLength="128" sap:picklist="status"/>
+      </EntityType>
+      <EntityType Name="cust_PromotionHistory" sap:label="Promotion History">
+        <Key><PropertyRef Name="externalCode"/><PropertyRef Name="effectiveStartDate"/></Key>
+        <Property Name="externalCode" Type="Edm.String" Nullable="false" sap:required="true" sap:label="Code" MaxLength="128"/>
+        <Property Name="effectiveStartDate" Type="Edm.DateTime" Nullable="false" sap:required="true" sap:label="Effective Start Date"/>
+        <Property Name="cust_user" Type="Edm.String" Nullable="false" sap:required="true" sap:label="Employee" MaxLength="128"/>
+        <Property Name="cust_fromGrade" Type="Edm.String" Nullable="true" sap:required="false" sap:label="Previous Grade" MaxLength="128"/>
+        <Property Name="cust_toGrade" Type="Edm.String" Nullable="true" sap:required="false" sap:label="New Grade" MaxLength="128"/>
+        <Property Name="cust_promotionType" Type="Edm.String" Nullable="true" sap:required="false" sap:label="Promotion Type" MaxLength="128" sap:picklist="JP_PromotionType"/>
+        <Property Name="cust_approvedDate" Type="Edm.DateTime" Nullable="true" sap:required="false" sap:label="Approval Date"/>
+      </EntityType>
+      <EntityType Name="cust_Qualification" sap:label="Qualification">
+        <Key><PropertyRef Name="externalCode"/><PropertyRef Name="effectiveStartDate"/></Key>
+        <Property Name="externalCode" Type="Edm.String" Nullable="false" sap:required="true" sap:label="Code" MaxLength="128"/>
+        <Property Name="effectiveStartDate" Type="Edm.DateTime" Nullable="false" sap:required="true" sap:label="Effective Start Date"/>
+        <Property Name="cust_user" Type="Edm.String" Nullable="false" sap:required="true" sap:label="Employee" MaxLength="128"/>
+        <Property Name="cust_qualification" Type="Edm.String" Nullable="false" sap:required="true" sap:label="Qualification" MaxLength="128" sap:picklist="JP_Qualification"/>
+        <Property Name="cust_acquiredDate" Type="Edm.DateTime" Nullable="true" sap:required="false" sap:label="Acquired Date"/>
+        <Property Name="cust_expiryDate" Type="Edm.DateTime" Nullable="true" sap:required="false" sap:label="Expiry Date"/>
+        <Property Name="cust_allowanceEligible" Type="Edm.Boolean" Nullable="true" sap:required="false" sap:label="Allowance Eligible"/>
+      </EntityType>
+      <EntityContainer Name="EntityContainer" m:IsDefaultEntityContainer="true">
+        <EntitySet Name="EmpJob" EntityType="SFOData.EmpJob"/>
+        <EntitySet Name="EmpEmployment" EntityType="SFOData.EmpEmployment"/>
+        <EntitySet Name="PerPerson" EntityType="SFOData.PerPerson"/>
+        <EntitySet Name="PerPersonal" EntityType="SFOData.PerPersonal"/>
+        <EntitySet Name="EmpCompensation" EntityType="SFOData.EmpCompensation"/>
+        <EntitySet Name="EmpPayCompRecurring" EntityType="SFOData.EmpPayCompRecurring"/>
+        <EntitySet Name="FOEventReason" EntityType="SFOData.FOEventReason"/>
+        <EntitySet Name="FOPayGrade" EntityType="SFOData.FOPayGrade"/>
+        <EntitySet Name="FODepartment" EntityType="SFOData.FODepartment"/>
+        <EntitySet Name="cust_PromotionHistory" EntityType="SFOData.cust_PromotionHistory"/>
+        <EntitySet Name="cust_Qualification" EntityType="SFOData.cust_Qualification"/>
+      </EntityContainer>
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>

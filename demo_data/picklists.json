@@ -1,0 +1,478 @@
+{
+ "d": {
+  "results": [
+   {
+    "id": "event",
+    "status": "ACTIVE",
+    "values": {
+     "results": [
+      {
+       "optionId": "94606",
+       "externalCode": "H",
+       "status": "ACTIVE",
+       "label_ja_JP": "入社",
+       "label_en_US": "Hire",
+       "label_defaultValue": "Hire"
+      },
+      {
+       "optionId": "39460",
+       "externalCode": "R",
+       "status": "ACTIVE",
+       "label_ja_JP": "再入社",
+       "label_en_US": "Rehire",
+       "label_defaultValue": "Rehire"
+      },
+      {
+       "optionId": "68143",
+       "externalCode": "5",
+       "status": "ACTIVE",
+       "label_ja_JP": "職務変更",
+       "label_en_US": "Job Change",
+       "label_defaultValue": "Job Change"
+      },
+      {
+       "optionId": "81042",
+       "externalCode": "PRM",
+       "status": "ACTIVE",
+       "label_ja_JP": "昇進・昇格",
+       "label_en_US": "Promotion",
+       "label_defaultValue": "Promotion"
+      },
+      {
+       "optionId": "18856",
+       "externalCode": "DEM",
+       "status": "ACTIVE",
+       "label_ja_JP": "降格",
+       "label_en_US": "Demotion",
+       "label_defaultValue": "Demotion"
+      },
+      {
+       "optionId": "36500",
+       "externalCode": "TRN",
+       "status": "ACTIVE",
+       "label_ja_JP": "異動",
+       "label_en_US": "Transfer",
+       "label_defaultValue": "Transfer"
+      },
+      {
+       "optionId": "63140",
+       "externalCode": "9",
+       "status": "ACTIVE",
+       "label_ja_JP": "データ変更",
+       "label_en_US": "Data Change",
+       "label_defaultValue": "Data Change"
+      },
+      {
+       "optionId": "14833",
+       "externalCode": "LOA",
+       "status": "ACTIVE",
+       "label_ja_JP": "休職",
+       "label_en_US": "Leave of Absence",
+       "label_defaultValue": "Leave of Absence"
+      },
+      {
+       "optionId": "19584",
+       "externalCode": "RTW",
+       "status": "ACTIVE",
+       "label_ja_JP": "復職",
+       "label_en_US": "Return to Work",
+       "label_defaultValue": "Return to Work"
+      },
+      {
+       "optionId": "86921",
+       "externalCode": "26",
+       "status": "ACTIVE",
+       "label_ja_JP": "退職",
+       "label_en_US": "Termination",
+       "label_defaultValue": "Termination"
+      }
+     ]
+    }
+   },
+   {
+    "id": "employeeclass",
+    "status": "ACTIVE",
+    "values": {
+     "results": [
+      {
+       "optionId": "99470",
+       "externalCode": "1",
+       "status": "ACTIVE",
+       "label_ja_JP": "正社員",
+       "label_en_US": "Regular",
+       "label_defaultValue": "Regular"
+      },
+      {
+       "optionId": "98948",
+       "externalCode": "2",
+       "status": "ACTIVE",
+       "label_ja_JP": "契約社員",
+       "label_en_US": "Fixed-term",
+       "label_defaultValue": "Fixed-term"
+      },
+      {
+       "optionId": "84370",
+       "externalCode": "3",
+       "status": "ACTIVE",
+       "label_ja_JP": "嘱託社員",
+       "label_en_US": "Re-employed Senior",
+       "label_defaultValue": "Re-employed Senior"
+      },
+      {
+       "optionId": "54193",
+       "externalCode": "4",
+       "status": "ACTIVE",
+       "label_ja_JP": "パートタイマー",
+       "label_en_US": "Part-time",
+       "label_defaultValue": "Part-time"
+      }
+     ]
+    }
+   },
+   {
+    "id": "employmentType",
+    "status": "ACTIVE",
+    "values": {
+     "results": [
+      {
+       "optionId": "29704",
+       "externalCode": "FT",
+       "status": "ACTIVE",
+       "label_ja_JP": "フルタイム",
+       "label_en_US": "Full Time",
+       "label_defaultValue": "Full Time"
+      },
+      {
+       "optionId": "85679",
+       "externalCode": "PT",
+       "status": "ACTIVE",
+       "label_ja_JP": "パートタイム",
+       "label_en_US": "Part Time",
+       "label_defaultValue": "Part Time"
+      }
+     ]
+    }
+   },
+   {
+    "id": "employee-status",
+    "status": "ACTIVE",
+    "values": {
+     "results": [
+      {
+       "optionId": "12627",
+       "externalCode": "A",
+       "status": "ACTIVE",
+       "label_ja_JP": "在籍",
+       "label_en_US": "Active",
+       "label_defaultValue": "Active"
+      },
+      {
+       "optionId": "30814",
+       "externalCode": "U",
+       "status": "ACTIVE",
+       "label_ja_JP": "休職中",
+       "label_en_US": "Unpaid Leave",
+       "label_defaultValue": "Unpaid Leave"
+      },
+      {
+       "optionId": "46440",
+       "externalCode": "T",
+       "status": "ACTIVE",
+       "label_ja_JP": "退職",
+       "label_en_US": "Terminated",
+       "label_defaultValue": "Terminated"
+      }
+     ]
+    }
+   },
+   {
+    "id": "GENDER",
+    "status": "ACTIVE",
+    "values": {
+     "results": [
+      {
+       "optionId": "31124",
+       "externalCode": "M",
+       "status": "ACTIVE",
+       "label_ja_JP": "男性",
+       "label_en_US": "Male",
+       "label_defaultValue": "Male"
+      },
+      {
+       "optionId": "39004",
+       "externalCode": "F",
+       "status": "ACTIVE",
+       "label_ja_JP": "女性",
+       "label_en_US": "Female",
+       "label_defaultValue": "Female"
+      },
+      {
+       "optionId": "71000",
+       "externalCode": "O",
+       "status": "ACTIVE",
+       "label_ja_JP": "その他",
+       "label_en_US": "Other",
+       "label_defaultValue": "Other"
+      },
+      {
+       "optionId": "33410",
+       "externalCode": "U",
+       "status": "ACTIVE",
+       "label_ja_JP": "未回答",
+       "label_en_US": "Undeclared",
+       "label_defaultValue": "Undeclared"
+      }
+     ]
+    }
+   },
+   {
+    "id": "ecMaritalStatus",
+    "status": "ACTIVE",
+    "values": {
+     "results": [
+      {
+       "optionId": "82723",
+       "externalCode": "S",
+       "status": "ACTIVE",
+       "label_ja_JP": "独身",
+       "label_en_US": "Single",
+       "label_defaultValue": "Single"
+      },
+      {
+       "optionId": "53136",
+       "externalCode": "M",
+       "status": "ACTIVE",
+       "label_ja_JP": "既婚",
+       "label_en_US": "Married",
+       "label_defaultValue": "Married"
+      }
+     ]
+    }
+   },
+   {
+    "id": "status",
+    "status": "ACTIVE",
+    "values": {
+     "results": [
+      {
+       "optionId": "58177",
+       "externalCode": "A",
+       "status": "ACTIVE",
+       "label_ja_JP": "有効",
+       "label_en_US": "Active",
+       "label_defaultValue": "Active"
+      },
+      {
+       "optionId": "73827",
+       "externalCode": "I",
+       "status": "ACTIVE",
+       "label_ja_JP": "無効",
+       "label_en_US": "Inactive",
+       "label_defaultValue": "Inactive"
+      }
+     ]
+    }
+   },
+   {
+    "id": "JP_HRCategory",
+    "status": "ACTIVE",
+    "values": {
+     "results": [
+      {
+       "optionId": "43730",
+       "externalCode": "G",
+       "status": "ACTIVE",
+       "label_ja_JP": "総合職",
+       "label_en_US": "Career Track",
+       "label_defaultValue": "Career Track"
+      },
+      {
+       "optionId": "48263",
+       "externalCode": "A",
+       "status": "ACTIVE",
+       "label_ja_JP": "一般職",
+       "label_en_US": "Clerical Track",
+       "label_defaultValue": "Clerical Track"
+      },
+      {
+       "optionId": "79583",
+       "externalCode": "S",
+       "status": "ACTIVE",
+       "label_ja_JP": "専門職",
+       "label_en_US": "Specialist Track",
+       "label_defaultValue": "Specialist Track"
+      }
+     ]
+    }
+   },
+   {
+    "id": "JP_AppraisalRank",
+    "status": "ACTIVE",
+    "values": {
+     "results": [
+      {
+       "optionId": "67241",
+       "externalCode": "S",
+       "status": "ACTIVE",
+       "label_ja_JP": "S",
+       "label_en_US": "S",
+       "label_defaultValue": "S"
+      },
+      {
+       "optionId": "19873",
+       "externalCode": "A",
+       "status": "ACTIVE",
+       "label_ja_JP": "A",
+       "label_en_US": "A",
+       "label_defaultValue": "A"
+      },
+      {
+       "optionId": "38571",
+       "externalCode": "B",
+       "status": "ACTIVE",
+       "label_ja_JP": "B",
+       "label_en_US": "B",
+       "label_defaultValue": "B"
+      },
+      {
+       "optionId": "34941",
+       "externalCode": "C",
+       "status": "ACTIVE",
+       "label_ja_JP": "C",
+       "label_en_US": "C",
+       "label_defaultValue": "C"
+      },
+      {
+       "optionId": "83710",
+       "externalCode": "D",
+       "status": "ACTIVE",
+       "label_ja_JP": "D",
+       "label_en_US": "D",
+       "label_defaultValue": "D"
+      }
+     ]
+    }
+   },
+   {
+    "id": "JP_Position",
+    "status": "ACTIVE",
+    "values": {
+     "results": [
+      {
+       "optionId": "64379",
+       "externalCode": "NONE",
+       "status": "ACTIVE",
+       "label_ja_JP": "なし",
+       "label_en_US": "None",
+       "label_defaultValue": "None"
+      },
+      {
+       "optionId": "68196",
+       "externalCode": "CHIEF",
+       "status": "ACTIVE",
+       "label_ja_JP": "主任",
+       "label_en_US": "Chief",
+       "label_defaultValue": "Chief"
+      },
+      {
+       "optionId": "22823",
+       "externalCode": "MGR",
+       "status": "ACTIVE",
+       "label_ja_JP": "課長",
+       "label_en_US": "Manager",
+       "label_defaultValue": "Manager"
+      },
+      {
+       "optionId": "16793",
+       "externalCode": "SMGR",
+       "status": "ACTIVE",
+       "label_ja_JP": "部長",
+       "label_en_US": "Senior Manager",
+       "label_defaultValue": "Senior Manager"
+      },
+      {
+       "optionId": "29958",
+       "externalCode": "EXE",
+       "status": "ACTIVE",
+       "label_ja_JP": "本部長",
+       "label_en_US": "Executive",
+       "label_defaultValue": "Executive"
+      }
+     ]
+    }
+   },
+   {
+    "id": "JP_PromotionType",
+    "status": "ACTIVE",
+    "values": {
+     "results": [
+      {
+       "optionId": "60129",
+       "externalCode": "REG",
+       "status": "ACTIVE",
+       "label_ja_JP": "定期昇格",
+       "label_en_US": "Regular Promotion",
+       "label_defaultValue": "Regular Promotion"
+      },
+      {
+       "optionId": "33579",
+       "externalCode": "SPC",
+       "status": "ACTIVE",
+       "label_ja_JP": "抜擢昇格",
+       "label_en_US": "Special Promotion",
+       "label_defaultValue": "Special Promotion"
+      },
+      {
+       "optionId": "38550",
+       "externalCode": "EXM",
+       "status": "ACTIVE",
+       "label_ja_JP": "試験昇格",
+       "label_en_US": "Exam-based Promotion",
+       "label_defaultValue": "Exam-based Promotion"
+      }
+     ]
+    }
+   },
+   {
+    "id": "JP_Qualification",
+    "status": "ACTIVE",
+    "values": {
+     "results": [
+      {
+       "optionId": "17309",
+       "externalCode": "BOKI2",
+       "status": "ACTIVE",
+       "label_ja_JP": "日商簿記2級",
+       "label_en_US": "Bookkeeping Level 2",
+       "label_defaultValue": "Bookkeeping Level 2"
+      },
+      {
+       "optionId": "42515",
+       "externalCode": "TOEIC800",
+       "status": "ACTIVE",
+       "label_ja_JP": "TOEIC 800点以上",
+       "label_en_US": "TOEIC 800+",
+       "label_defaultValue": "TOEIC 800+"
+      },
+      {
+       "optionId": "60146",
+       "externalCode": "SR",
+       "status": "ACTIVE",
+       "label_ja_JP": "社会保険労務士",
+       "label_en_US": "Labor and Social Security Attorney",
+       "label_defaultValue": "Labor and Social Security Attorney"
+      },
+      {
+       "optionId": "19897",
+       "externalCode": "PMP",
+       "status": "ACTIVE",
+       "label_ja_JP": "PMP",
+       "label_en_US": "PMP",
+       "label_defaultValue": "PMP"
+      }
+     ]
+    }
+   }
+  ]
+ }
+}
