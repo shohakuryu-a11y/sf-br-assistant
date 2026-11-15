@@ -1,0 +1,1739 @@
+<!doctype html>
+<!-- BR アシスタント — Copyright (c) 2026 Liu. All rights reserved. -->
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="author" content="Liu">
+<meta name="copyright" content="© 2026 Liu. All rights reserved.">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>BR アシスタント</title>
+<meta name="description" content="SuccessFactors ビジネスルールの設計・検証アシスタント">
+<meta name="theme-color" content="#232426">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="BRアシスタント">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<script>
+/* Background shade 0 (Deloitte gray) … 100 (white). Surfaces blend continuously; text flips
+   black/white at the point of best contrast. Runs before first paint (no flash). */
+window.applyShade=function(v){
+ var de0=document.documentElement;
+ if(de0.classList.contains('iphone')){            /* iPhone layout keeps its original colours (CSS) */
+  ['--bg','--card','--bar','--sep','--fill','--text','--text2','--text3','--tint','--rule-line','--similar-ink'].forEach(function(k){de0.style.removeProperty(k)});
+  de0.style.colorScheme=''; de0.removeAttribute('data-theme');
+  var m0=document.querySelector('meta[name="theme-color"]'); if(m0) m0.content=matchMedia('(prefers-color-scheme: dark)').matches?'#000000':'#F2F2F7';
+  return;
+ }
+ var t=Math.max(0,Math.min(100,+v||0))/100;
+ function L(a,b){return a.map(function(x,i){return x+(b[i]-x)*t})}
+ var bg=L([35,36,38],[242,242,247]), card=L([48,50,53],[255,255,255]),
+     bar=L([43,45,47,.88],[249,249,249,.86]), sep=L([151,153,155,.32],[60,60,67,.18]), fill=L([151,153,155,.2],[118,118,128,.12]);
+ function lum(c){c=c.slice(0,3).map(function(x){x/=255;return x<=.03928?x/12.92:Math.pow((x+.055)/1.055,2.4)});return .2126*c[0]+.7152*c[1]+.0722*c[2]}
+ var Lb=lum(bg), dark=1.05/(Lb+.05)>=(Lb+.05)/.05;   /* white text reads better? */
+ var tx=dark?[255,255,255]:[0,0,0];
+ function toward(f){return tx.map(function(x,i){return x+(bg[i]-x)*f})}
+ function rgb(c){return 'rgb('+c.slice(0,3).map(Math.round).join(',')+')'}
+ function rgba(c){return 'rgba('+c.slice(0,3).map(Math.round).join(',')+','+c[3].toFixed(3)+')'}
+ var de=document.documentElement, s=de.style;
+ s.setProperty('--bg',rgb(bg)); s.setProperty('--card',rgb(card)); s.setProperty('--bar',rgba(bar));
+ s.setProperty('--sep',rgba(sep)); s.setProperty('--fill',rgba(fill));
+ s.setProperty('--text',rgb(tx)); s.setProperty('--text2',rgb(toward(dark?.3:.45))); s.setProperty('--text3',rgb(toward(dark?.6:.72)));
+ s.setProperty('--tint',dark?'var(--green)':'var(--green-ink)');
+ s.setProperty('--rule-line',dark?'#53565A':'#000'); s.setProperty('--similar-ink',dark?'#FFB547':'#B86A00');
+ s.colorScheme=dark?'dark':'light';
+ if(dark) de.removeAttribute('data-theme'); else de.setAttribute('data-theme','light');
+ var m=document.querySelector('meta[name="theme-color"]'); if(m) m.content=rgb(bg);
+};
+window.savedShade=function(){try{var v=localStorage.getItem('br.shade');if(v!=null)return +v;return localStorage.getItem('br.theme')==='light'?100:0}catch(e){return 0}};
+try{if(localStorage.getItem('br.layout')==='iphone')document.documentElement.classList.add('iphone')}catch(e){}
+applyShade(savedShade());
+</script>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" href="icons/icon-192.png">
+<style>
+/* Default mode — グレー: Deloitte cool grays (#53565A / #75787B / #97999B / #BBBCBC) + green */
+:root{
+  --green:#86BC25; --green-ink:#26890D; --teal:#0097A9; --red:#DA291C; --amber:#ED8B00;
+  --bg:#232426; --card:#303235; --text:#fff; --text2:#BBBCBC; --text3:#75787B;
+  --sep:rgba(151,153,155,.32); --fill:rgba(151,153,155,.2); --bar:rgba(43,45,47,.88); --tint:var(--green);
+  --font:-apple-system,BlinkMacSystemFont,"SF Pro Text","Hiragino Sans","Hiragino Kaku Gothic ProN","Noto Sans JP",system-ui,sans-serif;
+  --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  --rule-bg:#000; --rule-line:#53565A; --similar-ink:#FFB547;
+  color-scheme:dark;
+}
+/* Lighter shades are applied as inline variables by applyShade() (see <head> script) */
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;overscroll-behavior:none}
+body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:14px;-webkit-font-smoothing:antialiased;overflow:hidden}
+button,input,textarea,select{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--green);outline-offset:2px}
+
+/* macOS-style window: fills the whole browser viewport */
+.app{position:fixed;inset:0;display:flex}
+.screen{position:relative;flex:1;display:flex;min-width:0;height:100%;overflow:hidden;overflow:clip;background:var(--bg)}
+.tabpanes,.pane{overflow:hidden;overflow:clip}
+.tabpanes{position:relative;flex:1;min-width:0;height:100%}
+.pane{position:absolute;inset:0;display:none}
+.pane.on{display:block}
+.view{position:absolute;inset:0;background:var(--bg);overflow-y:auto;overflow-x:hidden;transition:transform .25s cubic-bezier(.2,.8,.2,1),opacity .25s}
+.view.under{transform:translateX(-6%);opacity:0;pointer-events:none}
+.view.enter{transform:translateX(6%);opacity:0}
+.content{max-width:880px;margin:0 auto;padding:6px 24px 64px}
+@media (prefers-reduced-motion:reduce){.view{transition:none}}
+
+/* toolbar */
+.navbar{position:sticky;top:0;z-index:20;height:52px;display:flex;align-items:center;justify-content:space-between;padding:0 14px;background:var(--bg);box-shadow:0 .5px 0 var(--sep);transition:background .2s}
+.navbar.solid{background:var(--bar);backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px)}
+.navbar .mid{position:absolute;left:160px;right:160px;text-align:center;font-weight:600;font-size:14px;opacity:0;transition:opacity .2s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;pointer-events:none}
+.navbar.solid .mid{opacity:1}
+.navbar>div:not(.mid){display:flex;align-items:center;gap:2px}
+.navbtn{border:0;background:none;color:var(--tint);font-size:14px;padding:5px 10px;border-radius:6px;display:flex;align-items:center;gap:6px;min-height:28px;max-width:200px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.navbtn:hover:not(:disabled){background:var(--fill)}
+.navbtn:disabled{color:var(--text3)}
+.navbtn svg{width:8px;height:14px}
+.largetitle{font-size:26px;font-weight:700;letter-spacing:.1px;margin:20px 20px 4px;line-height:1.25}
+.subtitle{margin:0 20px 14px;color:var(--text2);font-size:14px;line-height:1.5}
+.tenant{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--text2);margin:0 20px 4px;padding:3px 10px 3px 8px;border-radius:12px;background:var(--fill)}
+.tenant i{width:8px;height:8px;border-radius:50%;background:var(--green)}
+
+/* sidebar (replaces the iPhone tab bar) */
+.tabbar{flex:none;width:224px;height:100%;display:flex;flex-direction:column;gap:2px;padding:14px 10px;background:var(--bar);backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);box-shadow:.5px 0 0 var(--sep);z-index:30}
+.apptitle{font-size:13px;font-weight:700;padding:6px 10px 14px;display:flex;align-items:center;gap:8px}
+/* green dot mark (echoes the Deloitte dot and the splash sphere) */
+.apptitle .appicon{width:14px;height:14px;margin:0 4px 0 2px;border-radius:50%;flex:none;
+ background:radial-gradient(circle at 35% 32%,#C7E58C 0%,#86BC25 45%,#26890D 100%);
+ box-shadow:0 0 8px rgba(134,188,37,.55);animation:dotGlow 3s ease-in-out infinite}
+@keyframes dotGlow{0%,100%{box-shadow:0 0 6px rgba(134,188,37,.4)}50%{box-shadow:0 0 12px rgba(134,188,37,.75)}}
+@media (prefers-reduced-motion:reduce){.apptitle .appicon{animation:none}}
+/* Brand logo slot: icons/logo.svg (light) + icons/logo-dark.svg (black / gray modes). Falls back to the BR icon if missing */
+.brandlogo{display:flex;align-items:center;padding-right:10px;margin-right:2px;border-right:1px solid var(--sep)}
+.brandlogo img{height:18px;width:auto;max-width:110px}
+.apptitle:not(.nologo) .appicon{display:none}
+.apptitle.nologo .brandlogo{display:none}
+.logo-light{display:none}
+:root[data-theme="light"] .logo-light{display:block}
+:root[data-theme="light"] .logo-dark{display:none}
+.sidehead{font-size:11px;font-weight:600;color:var(--text3);padding:4px 10px 4px}
+.tab{border:0;background:none;display:flex;align-items:center;gap:10px;font-size:13px;font-weight:500;color:var(--text);padding:7px 10px;border-radius:7px;text-align:left;width:100%}
+.tab:hover{background:var(--fill)}
+.tab.on{background:var(--fill);color:var(--tint);font-weight:600}
+.tab svg{width:18px;height:18px;flex:none;color:var(--tint)}
+.tab .tablabel{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sidespacer{flex:1}
+.tab.fs{color:var(--text2);font-weight:400}
+.copyright{font-size:10px;color:var(--text3);padding:8px 10px 0;line-height:1.4}
+/* background shade slider: gray → white track, Deloitte-green ball as the thumb */
+.shade{display:flex;align-items:center;gap:8px;margin:2px 8px 12px;color:var(--text3)}
+.shade svg{flex:none;width:14px;height:14px}
+.shade input{flex:1;min-width:0;height:24px;margin:0;background:none;cursor:pointer;-webkit-appearance:none;appearance:none}
+.shade input:focus-visible{outline:none}
+.shade input::-webkit-slider-runnable-track{height:6px;border-radius:3px;background:linear-gradient(90deg,#232426,#75787B 45%,#F2F2F7);box-shadow:inset 0 0 0 1px var(--sep)}
+.shade input::-moz-range-track{height:6px;border-radius:3px;background:linear-gradient(90deg,#232426,#75787B 45%,#F2F2F7);box-shadow:inset 0 0 0 1px var(--sep)}
+.shade input::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;margin-top:-6px;border:0;border-radius:50%;
+ background:radial-gradient(circle at 35% 32%,#C7E58C 0%,#86BC25 45%,#26890D 100%);box-shadow:0 0 8px rgba(134,188,37,.6),0 1px 3px rgba(0,0,0,.35);transition:transform .15s,box-shadow .15s}
+.shade input::-moz-range-thumb{width:18px;height:18px;border:0;border-radius:50%;
+ background:radial-gradient(circle at 35% 32%,#C7E58C 0%,#86BC25 45%,#26890D 100%);box-shadow:0 0 8px rgba(134,188,37,.6),0 1px 3px rgba(0,0,0,.35);transition:transform .15s,box-shadow .15s}
+.shade input:hover::-webkit-slider-thumb,.shade input:active::-webkit-slider-thumb{transform:scale(1.15);box-shadow:0 0 14px rgba(134,188,37,.85),0 1px 3px rgba(0,0,0,.35)}
+.shade input:hover::-moz-range-thumb,.shade input:active::-moz-range-thumb{transform:scale(1.15);box-shadow:0 0 14px rgba(134,188,37,.85),0 1px 3px rgba(0,0,0,.35)}
+.shade input:focus-visible::-webkit-slider-thumb{box-shadow:0 0 0 3px rgba(134,188,37,.45),0 0 12px rgba(134,188,37,.8)}
+.shade input:focus-visible::-moz-range-thumb{box-shadow:0 0 0 3px rgba(134,188,37,.45),0 0 12px rgba(134,188,37,.8)}
+@media (max-width:720px){
+  html:not(.iphone) .screen{flex-direction:column-reverse}
+  html:not(.iphone) .tabbar{width:100%;height:calc(56px + env(safe-area-inset-bottom));flex-direction:row;padding:4px 6px env(safe-area-inset-bottom);box-shadow:0 -.5px 0 var(--sep);gap:0}
+  html:not(.iphone) :is(.apptitle,.sidehead,.sidespacer,.tab.fs,.shade,.copyright){display:none}
+  html:not(.iphone) .tab{flex-direction:column;gap:3px;font-size:10px;padding:4px 0;justify-content:center;border-radius:8px}
+  html:not(.iphone) .tab .tablabel{flex:none}
+  html:not(.iphone) .tab.on{background:none}
+  html:not(.iphone) .tab svg{width:22px;height:22px}
+  html:not(.iphone) .tabpanes{height:auto}
+  html:not(.iphone) .navbar{padding-top:env(safe-area-inset-top);height:calc(52px + env(safe-area-inset-top))}
+  html:not(.iphone) .content{padding:6px 0 48px}
+  html:not(.iphone) textarea.mono{font-size:16px}
+}
+
+.stephead{display:flex;align-items:center;gap:10px;margin:30px 20px 8px;font-size:16px;font-weight:600}
+.stephead .n{width:22px;height:22px;border-radius:50%;background:var(--text);color:var(--bg);font-size:12px;font-weight:700;display:grid;place-items:center;flex:none}
+.stephead.done .n{background:var(--green);color:#000}
+.stephead.off{color:var(--text3)} .stephead.off .n{background:var(--text3)}
+.sechead{margin:22px 28px 7px;font-size:12px;font-weight:600;color:var(--text2)}
+.secfoot{margin:7px 28px 0;font-size:12px;color:var(--text2);line-height:1.5}
+.group{margin:0 16px;background:var(--card);border-radius:10px;overflow:hidden;box-shadow:0 0 0 .5px var(--sep)}
+.row{display:flex;align-items:center;gap:12px;min-height:38px;padding:8px 14px;position:relative;width:100%;border:0;background:none;text-align:left;font-size:14px}
+.row+.row::before{content:"";position:absolute;top:0;left:16px;right:0;height:.5px;background:var(--sep)}
+.row .main{flex:1;min-width:0}
+.row .t{line-height:1.3}
+.row .s{font-size:12px;color:var(--text2);margin-top:2px;line-height:1.4;overflow-wrap:anywhere}
+.row .v{color:var(--text2);font-size:13px;text-align:right;flex:none;max-width:55%;overflow-wrap:anywhere}
+.chev{color:var(--text3);flex:none}
+button.row:hover{background:var(--fill)}
+/* history row: open area + delete button */
+.row.hrow{padding:0;gap:0}
+.row.hrow:hover{background:var(--fill)}
+.hopen{flex:1;min-width:0;display:flex;align-items:center;gap:12px;border:0;background:none;padding:8px 6px 8px 14px;text-align:left;font-size:14px}
+.hdel{flex:none;display:flex;align-items:center;gap:4px;border:0;background:none;color:var(--text3);font-size:12px;font-weight:600;padding:6px 8px;margin-right:8px;border-radius:6px;white-space:nowrap;transition:background .15s,color .15s}
+.hdel:hover{color:var(--red);background:var(--fill)}
+.hdel.arm{color:#fff;background:var(--red)}
+.hdel span:empty{display:none}
+button.row:active{background:var(--fill)}
+.row.stack{display:block}
+.row.stack label{display:block;font-size:12px;color:var(--text2);margin-bottom:4px}
+
+textarea.field{display:block;width:100%;border:0;background:none;resize:vertical;padding:10px 14px;font-size:14px;line-height:1.5;min-height:110px;outline:none}
+textarea.mono{font-family:var(--mono);font-size:12px;line-height:1.5;min-height:240px}
+input.inline,select.inline{border:0;background:none;outline:none;text-align:right;font-size:14px;color:var(--text2);width:100%}
+select.inline{text-align-last:right;appearance:none;-webkit-appearance:none}
+input.full{border:0;background:none;outline:none;font-size:14px;width:100%}
+
+.chips{display:flex;gap:8px;overflow-x:auto;padding:12px 16px 2px;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chips.wrap{flex-wrap:wrap;overflow:visible;padding-top:4px}
+.chip{flex:none;border:0;border-radius:14px;padding:5px 12px;font-size:13px;background:var(--card);color:var(--text);box-shadow:0 0 0 .5px var(--sep)}
+.chip:hover,.chip:active{background:var(--fill)}
+.chip[aria-pressed="true"]{background:var(--text);color:var(--bg)}
+.chip[aria-pressed="false"]{color:var(--text2)}
+.tag{display:inline-block;padding:3px 9px;border-radius:11px;background:var(--fill);font-size:13px;margin:4px 6px 0 0}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;width:auto;margin:14px 0 0 16px;min-height:32px;padding:0 18px;border:0;border-radius:7px;background:var(--green);color:#000;font-size:14px;font-weight:600;vertical-align:top;box-shadow:0 .5px 1px rgba(0,0,0,.15)}
+.btn:hover:not(:disabled){filter:brightness(1.05)}
+.btn:disabled{opacity:.45;cursor:default}
+.btn.plain{background:var(--card);color:var(--tint);font-weight:500;box-shadow:0 0 0 .5px var(--sep),0 .5px 1px rgba(0,0,0,.08)}
+.btn.danger{background:var(--card);color:var(--red);font-weight:500;box-shadow:0 0 0 .5px var(--sep),0 .5px 1px rgba(0,0,0,.08)}
+.btnrow{display:flex;flex-wrap:wrap;gap:10px;margin:14px 16px 0}
+.btnrow .btn{margin:0;width:auto;flex:none}
+.linkbtn{border:0;background:none;color:var(--tint);font-size:13px;padding:6px 0;text-align:left}
+.linkbtn:hover{text-decoration:underline}
+
+.seg{display:flex;max-width:420px;margin:0 16px 4px;padding:2px;border-radius:8px;background:var(--fill)}
+.seg button{flex:1;border:0;background:none;border-radius:6px;padding:4px 0;font-size:13px;font-weight:500}
+.seg button.on{background:var(--card);box-shadow:0 3px 8px rgba(0,0,0,.12),0 3px 1px rgba(0,0,0,.04)}
+
+details.prompt{margin:0 16px;background:var(--card);border-radius:12px;overflow:hidden}
+details.prompt summary{list-style:none;cursor:pointer;padding:12px 16px;font-size:15px;display:flex;justify-content:space-between;color:var(--text)}
+details.prompt summary::-webkit-details-marker{display:none}
+details.prompt summary span{color:var(--text2);font-size:13px}
+details.prompt pre{margin:0;padding:12px 16px 16px;border-top:.5px solid var(--sep);font:12px/1.55 var(--mono);white-space:pre-wrap;overflow-wrap:anywhere;color:var(--text2);max-height:320px;overflow:auto}
+
+.verdict{scroll-margin-top:60px;margin:0 16px;border-radius:12px;padding:14px 16px;display:flex;gap:12px;align-items:center;background:var(--card)}
+.verdict .big{font-size:17px;font-weight:600}
+.verdict .s{font-size:13px;color:var(--text2);margin-top:2px}
+.badge{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;flex:none}
+.badge.ok{background:var(--green)} .badge.ng{background:var(--red)}
+
+/* rule card: the one bold element */
+.rule{margin:0 16px;background:#000;color:#fff;border-radius:14px;padding:16px 16px 14px;font-size:15px;line-height:1.5}
+.rule .meta{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.rule .tagd{font-size:12px;padding:3px 8px;border-radius:6px;background:#2C2C2E;color:#D1D1D6}
+.rule .tagd b{color:#fff;font-weight:600}
+.rule .when{font-size:13px;color:#AEAEB2;margin:-4px 0 8px}
+.blk{display:grid;grid-template-columns:62px 1fr;gap:10px;padding:10px 0;border-top:1px solid #2C2C2E}
+.blk.sub{border-top:0;padding-top:2px}
+.kw.then{color:#C7E58C}
+.cond+.cond{margin-top:4px}
+.join{display:block;font-size:12px;color:#8E8E93;margin:2px 0 6px}
+.grp{border-left:2px solid #3A3A3C;padding-left:10px;margin:2px 0}
+.kw{font-weight:700;font-size:13px;letter-spacing:.3px;color:var(--green);padding-top:3px}
+.kw.else{color:#8E8E93}
+.expr{display:flex;flex-wrap:wrap;align-items:center;gap:6px}
+.f{display:inline-flex;flex-direction:column;padding:4px 9px;border-radius:7px;background:#1C1C1E;border:1px solid #3A3A3C;line-height:1.25;max-width:100%}
+.f small{font-size:11px;color:#8E8E93;overflow-wrap:anywhere}
+.f.bad{border-color:#DA291C}
+.lit{padding:4px 9px;border-radius:7px;background:rgba(134,188,37,.16);color:#C7E58C;border:1px solid rgba(134,188,37,.35);overflow-wrap:anywhere}
+.op{color:#8E8E93;font-size:14px}
+.fn{color:#7FD7E3;font-weight:600}
+.paren{color:#8E8E93}
+.rule{background:var(--rule-bg);border:1px solid var(--rule-line)}
+
+.conf{display:flex;align-items:center;gap:8px;margin-top:6px}
+.bar{flex:1;height:5px;border-radius:3px;background:var(--fill);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--green)}
+.bar.low i{background:var(--amber)}
+.pct{font-size:12px;color:var(--text2);width:34px;text-align:right;font-variant-numeric:tabular-nums}
+.pill{display:inline-block;font-size:11px;font-weight:600;padding:2px 7px;border-radius:5px;margin-left:6px;vertical-align:2px}
+.pill.direct{background:rgba(134,188,37,.18);color:var(--tint)}
+.pill.similar{background:rgba(237,139,0,.16);color:#B86A00}
+.pill.derived{background:rgba(0,151,169,.14);color:var(--teal)}
+.pill.sync{background:var(--fill);color:var(--text2)}
+.pill.overridden,.pill.manual{background:rgba(0,151,169,.14);color:var(--teal)}
+.pill.inactive{background:rgba(218,41,28,.12);color:var(--red)}
+.pill.similar{color:var(--similar-ink)}
+ul.plain{margin:0;padding:0;list-style:none}
+ul.plain li{padding:9px 14px;font-size:14px;line-height:1.45;position:relative;overflow-wrap:anywhere}
+ul.plain li+li::before{content:"";position:absolute;top:0;left:16px;right:0;height:.5px;background:var(--sep)}
+
+.check{display:flex;gap:12px;padding:11px 16px;position:relative;align-items:flex-start}
+.check+.check::before{content:"";position:absolute;top:0;left:48px;right:0;height:.5px;background:var(--sep)}
+.ic{width:22px;height:22px;border-radius:50%;flex:none;display:grid;place-items:center;margin-top:1px}
+.ic.ok{background:var(--green)} .ic.ng{background:var(--red)}
+.check .t{font-size:14px}
+.check .err{font-size:13px;color:var(--red);margin-top:3px;line-height:1.4;overflow-wrap:anywhere}
+.check .s{font-size:13px;color:var(--text2);margin-top:2px}
+
+.search{margin:12px 16px 4px;max-width:480px;display:flex;align-items:center;gap:6px;background:var(--fill);border-radius:7px;padding:0 8px;height:30px;color:var(--text2)}
+.search input{flex:1;border:0;background:none;outline:none;font-size:14px;color:var(--text);min-width:0}
+.typeicon{width:30px;height:30px;border-radius:7px;display:grid;place-items:center;font-size:12px;font-weight:700;color:#fff;flex:none}
+.ty-date{background:#0097A9} .ty-string{background:#8E8E93} .ty-picklist{background:#26890D} .ty-boolean{background:#ED8B00} .ty-number{background:#5E5CE6} .ty-eventReason{background:#000;border:1px solid #3A3A3C}
+.dotic{width:22px;height:22px;border-radius:50%;flex:none;display:grid;place-items:center}
+.switch{position:relative;width:38px;height:22px;flex:none}
+.switch input{position:absolute;opacity:0;inset:0;margin:0;cursor:pointer}
+.switch span{position:absolute;inset:0;border-radius:11px;background:var(--fill);transition:background .2s}
+.switch span::after{content:"";position:absolute;top:2px;left:2px;width:18px;height:18px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.2);transition:transform .2s}
+.switch input:checked+span{background:var(--green)}
+.switch input:checked+span::after{transform:translateX(16px)}
+.switch input:focus-visible+span{outline:2px solid var(--green);outline-offset:2px}
+.formerr{color:var(--red);font-size:12px;margin:8px 28px 0}
+
+/* macOS-style sheet: drops from the top of the window */
+.sheetwrap{position:absolute;inset:0;z-index:60;background:rgba(0,0,0,.4);display:flex;align-items:flex-start;justify-content:center;padding:0 16px;opacity:0;pointer-events:none;transition:opacity .2s}
+.sheetwrap.on{opacity:1;pointer-events:auto}
+.sheet{width:100%;max-width:560px;max-height:calc(100% - 80px);overflow-y:auto;background:var(--bg);border-radius:0 0 12px 12px;padding:8px 0 24px;box-shadow:0 0 0 .5px var(--sep),0 20px 50px rgba(0,0,0,.3);transform:translateY(-24px);transition:transform .25s cubic-bezier(.2,.8,.2,1)}
+.sheetwrap.on .sheet{transform:none}
+.grabber{display:none}
+.sheethead{display:flex;justify-content:space-between;align-items:center;padding:4px 10px 4px 20px}
+.sheethead h2{font-size:16px;margin:8px 0}
+.sheet .btn{margin-bottom:4px}
+.toast{position:absolute;left:50%;bottom:32px;transform:translate(-50%,20px);background:rgba(0,0,0,.82);color:#fff;font-size:14px;padding:10px 16px;border-radius:20px;opacity:0;transition:.25s;z-index:70;pointer-events:none;max-width:90%;text-align:center}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+.empty{text-align:center;color:var(--text2);font-size:15px;padding:26px 28px;line-height:1.55}
+/* Next-step guide: a laser comet running clockwise around the border (Deloitte green / teal) */
+@property --guide-ang{syntax:'<angle>';initial-value:0deg;inherits:false}
+.guide{position:relative;overflow:visible!important;--gr:10px;animation:guideGlow 2.4s ease-in-out infinite}
+.group.guide{--gr:13px}
+.navbtn.guide{--gr:9px}
+.guide::before,.guide::after{content:"";position:absolute;inset:-3px;border-radius:var(--gr);pointer-events:none;z-index:3}
+.guide::before{padding:2px;
+ background:conic-gradient(from var(--guide-ang),transparent 0deg 190deg,rgba(0,151,169,.35) 240deg,#0097A9 285deg,#86BC25 330deg,#C7E58C 352deg,#fff 360deg);
+ -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;
+ mask:linear-gradient(#000 0 0) content-box exclude,linear-gradient(#000 0 0);
+ animation:guideSpin 2s linear infinite}
+.guide::after{border:1px solid rgba(134,188,37,.4)}
+@keyframes guideSpin{to{--guide-ang:360deg}}
+@keyframes guideGlow{0%,100%{box-shadow:0 0 10px rgba(134,188,37,.22),0 0 2px rgba(0,151,169,.2)}50%{box-shadow:0 0 22px rgba(134,188,37,.5),0 0 6px rgba(0,151,169,.35)}}
+@media (prefers-reduced-motion:reduce){.guide{animation:none;box-shadow:0 0 14px rgba(134,188,37,.4)}.guide::before{animation:none;background:#86BC25}}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+
+/* Splash: dot-matrix sphere; click anywhere to burst it and enter the app */
+#splash{position:fixed;inset:0;z-index:1000;cursor:pointer;outline:none;color:#fff;font-family:var(--font);-webkit-user-select:none;user-select:none}
+.splash-bg{position:absolute;inset:0;background:#000}
+#splash canvas{position:absolute;inset:0;display:block}
+.splash-text{position:absolute;left:0;right:0;bottom:10vh;text-align:center;pointer-events:none;transition:opacity .35s,transform .6s cubic-bezier(.2,.8,.2,1)}
+.splash-title{font-size:30px;font-weight:700;letter-spacing:.08em}
+.splash-sub{margin-top:10px;font-size:13px;color:#97999B;letter-spacing:.06em}
+.splash-hint{display:inline-block;margin-top:30px;font-size:12px;letter-spacing:.32em;color:#86BC25;padding-bottom:6px;border-bottom:1px solid rgba(134,188,37,.45);animation:splashHint 2.2s ease-in-out infinite}
+@keyframes splashHint{0%,100%{opacity:.35}50%{opacity:1}}
+#splash.go{cursor:default;pointer-events:none}
+.splash-copy{position:absolute;left:0;right:0;bottom:20px;text-align:center;font-size:11px;letter-spacing:.06em;color:#75787B;pointer-events:none;transition:opacity .35s}
+#splash.go .splash-copy{opacity:0}
+#splash.go .splash-text{opacity:0;transform:translateY(14px) scale(.97)}
+#splash.go .splash-bg{opacity:0;transition:opacity .8s ease .3s}
+@media (prefers-reduced-motion:reduce){.splash-hint{animation:none;opacity:1}#splash.go .splash-bg{transition:opacity .3s}}
+
+/* =====================================================================
+   iPhone layout (the original design) — active when <html class="iphone">
+   ===================================================================== */
+html.iphone{
+  --bg:#F2F2F7; --card:#fff; --text:#000; --text2:#6E6E73; --text3:#AEAEB2;
+  --sep:rgba(60,60,67,.18); --fill:rgba(118,118,128,.12); --bar:rgba(249,249,249,.86);
+  --tint:var(--green-ink); --rule-bg:#000; --rule-line:#000; --similar-ink:#B86A00; color-scheme:light;
+}
+@media (prefers-color-scheme:dark){html.iphone{
+  --bg:#000; --card:#1C1C1E; --text:#fff; --text2:#98989F; --text3:#5A5A5F;
+  --sep:rgba(84,84,88,.6); --fill:rgba(118,118,128,.24); --bar:rgba(22,22,24,.86); --tint:var(--green);
+  --rule-bg:#0A0A0A; --rule-line:#2C2C2E; --similar-ink:#FFB547; color-scheme:dark;
+}}
+html.iphone body{background:#D9D9DE;display:flex;overflow:auto;padding:24px;font-size:16px}
+@media (prefers-color-scheme:dark){html.iphone body{background:#2A2A2D}}
+html.iphone .app{position:relative;inset:auto;display:block;margin:auto;flex:none;width:393px;height:852px;border-radius:58px;background:#000;padding:11px;box-shadow:0 0 0 2px #3A3A3C,0 30px 80px rgba(0,0,0,.35)}
+html.iphone .screen{display:block;width:100%;height:100%;border-radius:47px}
+html.iphone .tabpanes{position:absolute;inset:0;height:auto}
+html.iphone .view{top:54px;transition:transform .35s cubic-bezier(.2,.8,.2,1)}
+html.iphone .view.under{transform:translateX(-28%);opacity:1;pointer-events:auto}
+html.iphone .view.enter{transform:translateX(100%);opacity:1}
+html.iphone .view::-webkit-scrollbar{display:none}
+html.iphone .content{max-width:none;margin:0;padding:0 0 100px}
+.island,.statusbar,.safetop{display:none}
+html.iphone .island{display:block;position:absolute;top:11px;left:50%;transform:translateX(-50%);width:122px;height:36px;border-radius:20px;background:#000;z-index:50}
+html.iphone .statusbar{display:flex;position:absolute;top:0;left:0;right:0;height:54px;align-items:center;justify-content:space-between;padding:6px 34px 0 46px;background:var(--bg);color:var(--text);font-size:16px;font-weight:600;z-index:40;pointer-events:none}
+.statusbar svg{display:block}
+html.iphone .safetop{position:absolute;top:0;left:0;right:0;height:env(safe-area-inset-top);background:var(--bg);z-index:40}
+/* navigation bar */
+html.iphone .navbar{height:44px;padding:0 8px;box-shadow:none}
+html.iphone .navbar.solid{box-shadow:0 .5px 0 var(--sep)}
+html.iphone .navbar .mid{left:96px;right:96px;font-size:17px}
+html.iphone .navbtn{font-size:17px;padding:8px;gap:2px;min-height:44px;max-width:150px;border-radius:0}
+html.iphone .navbtn:hover:not(:disabled){background:none}
+html.iphone .navbtn svg{width:12px;height:20px}
+html.iphone #newobj{display:none}   /* narrow nav bar: the same button sits under the object list */
+html.iphone .largetitle{font-size:34px;letter-spacing:.2px;margin:2px 20px 4px;line-height:1.2}
+html.iphone .subtitle{font-size:15px;line-height:1.45}
+html.iphone .tenant{font-size:13px;padding:4px 10px 4px 8px;border-radius:14px}
+/* tab bar */
+html.iphone .tabbar{position:absolute;left:0;right:0;bottom:0;width:auto;height:83px;flex-direction:row;justify-content:space-around;gap:0;padding:6px 6px 0;box-shadow:0 -.5px 0 var(--sep)}
+html.iphone :is(.apptitle,.sidehead,.sidespacer,.shade,.tab.fs,.copyright){display:none}
+html.iphone .tab{flex:1;width:auto;flex-direction:column;align-items:center;justify-content:flex-start;gap:3px;font-size:10px;font-weight:500;color:var(--text3);padding:2px 0;border-radius:0}
+html.iphone .tab:hover{background:none}
+html.iphone .tab.on{background:none;color:var(--tint);font-weight:500}
+html.iphone .tab svg{width:27px;height:27px;color:inherit}
+html.iphone .tab .tablabel{flex:none}
+/* content */
+html.iphone .stephead{margin:28px 20px 8px;font-size:17px}
+html.iphone .stephead .n{width:24px;height:24px;font-size:13px}
+html.iphone .sechead{margin:22px 36px 7px;font-size:13px;font-weight:400}
+html.iphone .secfoot{margin:7px 36px 0;font-size:13px}
+html.iphone .formerr{margin:8px 36px 0;font-size:13px}
+html.iphone .group{border-radius:12px;box-shadow:none}
+html.iphone .row{min-height:44px;padding:10px 16px;font-size:17px}
+html.iphone .row .s{font-size:13px}
+html.iphone .row .v{font-size:15px}
+html.iphone .row.stack label{font-size:13px}
+html.iphone button.row:hover{background:none}
+html.iphone .row.hrow{padding:0}
+html.iphone .hopen{font-size:17px;padding:10px 6px 10px 16px}
+html.iphone textarea.field{padding:12px 16px;font-size:17px;line-height:1.45;resize:none}
+html.iphone textarea.mono{font-size:12.5px;min-height:200px}
+html.iphone :is(input.inline,select.inline,input.full){font-size:17px}
+html.iphone .chip{border-radius:16px;padding:7px 12px;font-size:14px;box-shadow:none}
+html.iphone .btn{display:flex;width:calc(100% - 32px);margin:14px 16px 0;min-height:50px;padding:0 12px;border-radius:14px;font-size:17px;box-shadow:none}
+html.iphone .btnrow{flex-wrap:nowrap}
+html.iphone .btnrow .btn{flex:1;margin:0;width:auto}
+html.iphone .linkbtn{font-size:15px;padding:8px 0}
+html.iphone .seg{max-width:none;border-radius:9px}
+html.iphone .seg button{border-radius:7px;padding:6px 0}
+html.iphone .check .t{font-size:16px}
+html.iphone ul.plain li{padding:11px 16px;font-size:15px}
+html.iphone .search{max-width:none;margin:8px 16px 4px;border-radius:10px;height:36px}
+html.iphone .search input{font-size:17px}
+html.iphone .switch{width:51px;height:31px}
+html.iphone .switch span{border-radius:16px}
+html.iphone .switch span::after{width:27px;height:27px;box-shadow:0 3px 8px rgba(0,0,0,.15)}
+html.iphone .switch input:checked+span::after{transform:translateX(20px)}
+/* bottom sheet & toast */
+html.iphone .sheetwrap{align-items:flex-end;justify-content:stretch;padding:0}
+html.iphone .sheet{max-width:none;max-height:85%;border-radius:14px 14px 0 0;padding:8px 0 40px;box-shadow:none;transform:translateY(100%);transition:transform .35s cubic-bezier(.2,.8,.2,1)}
+html.iphone .sheetwrap.on .sheet{transform:none}
+html.iphone .grabber{display:block}
+html.iphone .sheethead{padding:0 8px 0 20px}
+html.iphone .sheethead h2{font-size:20px}
+html.iphone .toast{bottom:110px}
+/* real phones: no frame, full screen */
+@media (max-width:500px){
+  html.iphone body{display:block;background:var(--bg);padding:0;overflow:hidden}
+  html.iphone .app{width:100%;height:100dvh;margin:0;border-radius:0;padding:0;box-shadow:none}
+  html.iphone .screen{border-radius:0}
+  html.iphone .island,html.iphone .statusbar{display:none}
+  html.iphone .safetop{display:block}
+  html.iphone .view{top:env(safe-area-inset-top)}
+  html.iphone .content{padding-bottom:calc(100px + env(safe-area-inset-bottom))}
+  html.iphone textarea.mono{font-size:16px}
+  html.iphone .sheet{padding-bottom:calc(40px + env(safe-area-inset-bottom))}
+  html.iphone .tabbar{height:calc(56px + env(safe-area-inset-bottom))}
+}
+
+/* layout switch button (floating): iPhone → desktop on wide screens; round icon on narrow screens */
+.layoutfab{display:none;position:fixed;z-index:900;border:0;align-items:center;background:var(--card);color:var(--tint);font-size:13px;font-weight:600;box-shadow:0 0 0 .5px var(--sep),0 4px 14px rgba(0,0,0,.18)}
+.layoutfab svg{width:16px;height:16px;flex:none}
+.layoutfab .to-phone,.layoutfab .to-mac{display:inline-flex;align-items:center;gap:6px}
+.layoutfab .to-mac{display:none}
+html.iphone .layoutfab .to-mac{display:inline-flex}
+html.iphone .layoutfab .to-phone{display:none}
+html.iphone .layoutfab{display:flex;top:20px;right:20px;padding:8px 14px;border-radius:18px}
+@media (max-width:720px){
+  html:not(.iphone) .layoutfab{display:flex;justify-content:center;right:14px;bottom:calc(68px + env(safe-area-inset-bottom));width:40px;height:40px;padding:0;border-radius:50%}
+  html:not(.iphone) .layoutfab .lbl{display:none}
+}
+@media (max-width:500px){
+  html.iphone .layoutfab{top:auto;right:14px;bottom:calc(68px + env(safe-area-inset-bottom));width:40px;height:40px;padding:0;border-radius:50%;justify-content:center}
+  html.iphone .layoutfab .lbl{display:none}
+}
+.hidden{display:none!important}
+</style>
+</head>
+<body>
+<div id="splash" role="button" tabindex="0" aria-label="クリックして BR アシスタントを開始">
+ <div class="splash-bg"></div>
+ <canvas aria-hidden="true"></canvas>
+ <div class="splash-text">
+  <div class="splash-title">BR アシスタント</div>
+  <div class="splash-sub">SuccessFactors ビジネスルールの設計・検証</div>
+  <div class="splash-hint">クリックして開始</div>
+ </div>
+ <div class="splash-copy">© 2026 Liu. All rights reserved.</div>
+</div>
+<div class="app">
+ <div class="screen" id="screen">
+  <div class="safetop" aria-hidden="true"></div>
+  <div class="island" aria-hidden="true"></div>
+  <div class="statusbar" aria-hidden="true">
+   <span>9:41</span>
+   <span style="display:flex;gap:6px;align-items:center">
+    <svg width="18" height="12" viewBox="0 0 18 12" fill="currentColor"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="5.5" width="3" height="6.5" rx="1"/><rect x="10" y="3" width="3" height="9" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg>
+    <svg width="16" height="12" viewBox="0 0 16 12" fill="currentColor"><path d="M8 2.2c2.4 0 4.6.9 6.2 2.5l1.2-1.2C13.4 1.5 10.8.5 8 .5S2.6 1.5.6 3.5l1.2 1.2C3.4 3.1 5.6 2.2 8 2.2Zm0 3.4c1.5 0 2.8.6 3.8 1.5l1.2-1.2C11.7 4.6 9.9 3.9 8 3.9S4.3 4.6 3 5.9l1.2 1.2c1-.9 2.3-1.5 3.8-1.5Zm0 3.4c.6 0 1.1.2 1.5.6L8 11.1 6.5 9.6c.4-.4.9-.6 1.5-.6Z"/></svg>
+    <svg width="27" height="13" viewBox="0 0 27 13" fill="none"><rect x=".5" y=".5" width="23" height="12" rx="3.5" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="20" height="9" rx="2" fill="currentColor"/><path d="M25 4.5v4c.8-.3 1.3-1.1 1.3-2s-.5-1.7-1.3-2Z" fill="currentColor" opacity=".5"/></svg>
+   </span>
+  </div>
+  <nav class="tabbar" aria-label="メインナビゲーション">
+   <div class="apptitle">
+    <span class="brandlogo"><img class="logo-light" src="icons/logo.svg" alt="Deloitte" onerror="this.closest('.apptitle').classList.add('nologo')"><img class="logo-dark" src="icons/logo-dark.svg" alt="Deloitte" onerror="this.onerror=null;this.src='icons/logo.svg'"></span>
+    <span class="appicon" aria-hidden="true"></span>BR アシスタント</div>
+   <div class="sidehead">ワークスペース</div>
+   <button class="tab on" data-tab="make" aria-current="page">
+    <svg viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 4l2 6.5L20.5 12 14 14l-2 6.5L10 14l-6.5-2L10 10.5 12 4Z"/><path d="M21 17l.9 2.6L24.5 20.5 21.9 21.4 21 24l-.9-2.6-2.6-.9 2.6-.9L21 17Z"/></svg>
+    <span class="tablabel">ルール作成</span></button>
+   <button class="tab" data-tab="check">
+    <svg viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><path d="M14 3.5l8.5 3.2v6.6c0 5.4-3.6 9.4-8.5 11.2-4.9-1.8-8.5-5.8-8.5-11.2V6.7L14 3.5Z"/><path d="M10 14l3 3 5.5-6"/></svg>
+    <span class="tablabel">ルール検証</span></button>
+   <button class="tab" data-tab="hist">
+    <svg viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="14" cy="14" r="10"/><path d="M14 8.5V14l3.5 2.5"/></svg>
+    <span class="tablabel">履歴</span></button>
+   <div class="sidehead" style="margin-top:12px">データ</div>
+   <button class="tab" data-tab="cat">
+    <svg viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="4.5" y="4.5" width="7" height="19" rx="1.5"/><rect x="13.5" y="4.5" width="5" height="19" rx="1.5"/><path d="M18.5 6.2l3.6-1 4 17.6-3.6 1z"/></svg>
+    <span class="tablabel">項目カタログ</span></button>
+   <div class="sidespacer"></div>
+   <div class="sidehead">背景の明るさ</div>
+   <div class="shade">
+    <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M6.2 1.6a6.5 6.5 0 1 0 8.2 8.2A5.5 5.5 0 0 1 6.2 1.6Z"/></svg>
+    <input type="range" id="shade" min="0" max="100" step="1" value="0" aria-label="背景の明るさ（グレー〜ホワイト）" title="ドラッグで背景の明るさを調整（ダブルクリックでグレーに戻す）">
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><circle cx="8" cy="8" r="3"/><path d="M8 1v1.6M8 13.4V15M1 8h1.6M13.4 8H15M3 3l1.1 1.1M11.9 11.9 13 13M13 3l-1.1 1.1M4.1 11.9 3 13"/></svg>
+   </div>
+   <button class="tab fs" id="layoutbtn" type="button">
+    <svg viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="3" width="12" height="22" rx="3"/><path d="M12.5 6h3"/></svg>
+    <span class="tablabel">iPhone 表示</span></button>
+   <button class="tab fs" id="fsbtn" type="button">
+    <svg viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 11V5h6M23 11V5h-6M5 17v6h6M23 17v6h-6"/></svg>
+    <span class="tablabel">全画面表示</span></button>
+   <div class="copyright">© 2026 Liu. All rights reserved.</div>
+  </nav>
+
+  <div class="tabpanes">
+   <div class="pane on" id="pane-make"></div>
+   <div class="pane" id="pane-check"></div>
+   <div class="pane" id="pane-hist"></div>
+   <div class="pane" id="pane-cat"></div>
+  </div>
+
+  <div class="sheetwrap" id="sheetwrap" aria-hidden="true"><div class="sheet" id="sheet" role="dialog" aria-modal="true"></div></div>
+  <div class="toast" id="toast" role="status"></div>
+ </div>
+</div>
+<button class="layoutfab" id="layoutfab" type="button">
+ <span class="to-phone" title="iPhone 表示に切り替える"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4.5" y="1.5" width="7" height="13" rx="1.8"/><path d="M7 3.5h2"/></svg><span class="lbl">iPhone 表示</span></span>
+ <span class="to-mac" title="デスクトップ表示に戻す"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="1.5" y="2.5" width="13" height="8.5" rx="1.2"/><path d="M5.5 14h5M8 11v3"/></svg><span class="lbl">デスクトップ表示</span></span>
+</button>
+<input type="file" id="filein" accept="application/json,.json" class="hidden">
+
+<script src="data/catalog.js"></script>
+<script src="data/knowledge.js"></script>
+<script>
+'use strict';
+/* =========================================================
+   1. Storage (per-device; survives reloads, not shared)
+   ========================================================= */
+const store={
+ get(k,d){try{const v=localStorage.getItem(k);return v==null?d:JSON.parse(v)}catch(e){return d}},
+ set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+};
+const KEY={over:'br.overrides.v1',manual:'br.manualFields.v1',clog:'br.catalogLog.v1',hist:'br.history.v1',all:'br.allObjects.v1',objOver:'br.objOverrides.v1',objManual:'br.manualObjects.v1'};
+let ALL_OBJ=store.get(KEY.all,true);
+const allObjIds=()=>Object.keys(OBJ);
+
+/* =========================================================
+   2. Catalog model: sync layer (data/catalog.js) + manual layer (this device)
+   ========================================================= */
+const BASE=window.BR_CATALOG||{tenant:'(未読み込み)',version:'',objects:{},picklists:{},eventReasons:{}};
+const KN=window.BR_KNOWLEDGE||{events:[],functions:{},concepts:[],cards:[]};
+const FN=KN.functions, EVENTS=KN.events.map(e=>e.name);
+const PL=BASE.picklists, ER=BASE.eventReasons;
+let OVER=store.get(KEY.over,{}), MANUAL=store.get(KEY.manual,{}), CLOG=store.get(KEY.clog,[]);
+/* object layer: OBJOVER = edits / deletion of synced objects, MOBJ = objects added on this device */
+let OBJOVER=store.get(KEY.objOver,{}), MOBJ=store.get(KEY.objManual,{});
+const OBJ_ATTRS=['label','en','kind','nav'];
+let FS={}, OBJ={};
+function rebuild(){
+ OBJ={}; FS={};
+ for(const [o,ob] of Object.entries(BASE.objects)){
+  const ov=OBJOVER[o]||{}; if(ov.deleted) continue;
+  const base={label:ob.label,en:ob.en||'',kind:ob.kind,nav:(ob.nav||[]).slice()}, cur={...base,...ov};
+  const changed=OBJ_ATTRS.some(k=>k in ov&&JSON.stringify(ov[k])!==JSON.stringify(base[k]));
+  OBJ[o]={label:cur.label,en:cur.en,kind:cur.kind,nav:cur.nav.slice(),origin:changed?'overridden':'sync',base};
+  for(const [f,a] of Object.entries(ob.fields)){
+   const ref=o+'.'+f, base={label:a.label,desc:a.desc||'',syn:(a.syn||[]).slice(),status:a.inactive?'inactive':'active'};
+   const ov=OVER[ref]||{}, cur={...base,...ov};
+   const changed=['label','desc','syn','status'].some(k=>k in ov&&JSON.stringify(ov[k])!==JSON.stringify(base[k]));
+   FS[ref]={ref,obj:o,name:f,en:a.en,type:a.type,picklist:a.picklist||null,required:!!a.required,
+     label:cur.label,desc:cur.desc,syn:cur.syn.slice(),status:cur.status,origin:changed?'overridden':'sync',base};
+  }
+ }
+ for(const [o,m] of Object.entries(MOBJ)){
+  if(OBJ[o]) continue;
+  OBJ[o]={label:m.label,en:m.en||'',kind:m.kind,nav:(m.nav||[]).slice(),origin:'manual'};
+ }
+ for(const [o,ob] of Object.entries(OBJ)) ob.nav=ob.nav.filter(n=>n!==o&&OBJ[n]);
+ for(const [ref,m] of Object.entries(MANUAL)){
+  if(!OBJ[m.obj]) continue;
+  FS[ref]={ref,obj:m.obj,name:m.name,en:m.en||'',type:m.type,picklist:m.picklist||null,required:false,
+   label:m.label,desc:m.desc||'',syn:(m.syn||[]).slice(),status:m.status||'active',origin:'manual'};
+ }
+}
+rebuild();
+const fieldsOf=o=>Object.values(FS).filter(f=>f.obj===o);
+const TYPE_JA={date:'日付',string:'テキスト',picklist:'選択肢',boolean:'はい/いいえ',number:'数値',eventReason:'イベント事由'};
+const TYPE_IC={date:'日',string:'文',picklist:'選',boolean:'Y',number:'#',eventReason:'事'};
+const KIND_JA={EC:'Employee Central',Foundation:'Foundation Object',MDF:'カスタム MDF'};
+
+/* =========================================================
+   3. Local analysis (no AI): concepts + candidate fields
+   ========================================================= */
+const norm=s=>String(s||'').toLowerCase().replace(/\s+/g,'');
+function analyze(text){
+ const t=norm(text), score={}, why={};
+ const add=(ref,n,reason)=>{if(!FS[ref])return;score[ref]=(score[ref]||0)+n;(why[ref]=why[ref]||new Set()).add(reason)};
+ const concepts=KN.concepts.filter(c=>c.aliases.some(a=>norm(a).length>=2&&t.includes(norm(a))));
+ concepts.forEach(c=>c.refs.forEach(r=>add(r,6,'概念「'+c.name+'」')));
+ for(const f of Object.values(FS)){
+  if(f.status!=='active') continue;
+  if(norm(f.label).length>=2&&t.includes(norm(f.label))) add(f.ref,8,'ラベル');
+  f.syn.forEach(s=>{if(norm(s).length>=2&&t.includes(norm(s))) add(f.ref,5,'同義語「'+s+'」')});
+  if(norm(f.en).length>=4&&t.includes(norm(f.en))) add(f.ref,4,'英語ラベル');
+ }
+ const pickHits=[];
+ for(const [pid,vals] of Object.entries(PL)) for(const [code,v] of Object.entries(vals)){
+  if(norm(v.ja).length>=2&&t.includes(norm(v.ja))){pickHits.push({pid,code,ja:v.ja});
+   Object.values(FS).filter(f=>f.picklist===pid).forEach(f=>add(f.ref,4,'選択肢「'+v.ja+'」'))}
+ }
+ const erHits=[];
+ for(const [code,e] of Object.entries(ER)){
+  if(norm(e.ja).length>=2&&t.includes(norm(e.ja))){erHits.push(code);
+   Object.values(FS).filter(f=>f.type==='eventReason').forEach(f=>add(f.ref,4,'イベント事由「'+e.ja+'」'))}
+ }
+ const fields=Object.keys(score).sort((a,b)=>score[b]-score[a]).map(r=>({ref:r,score:score[r],why:[...why[r]]}));
+ const objScore={}; fields.forEach(f=>{const o=FS[f.ref].obj;objScore[o]=(objScore[o]||0)+f.score});
+ let objects=Object.keys(objScore).sort((a,b)=>objScore[b]-objScore[a]);
+ if(!objects.length) objects=['EmpJob'].filter(o=>OBJ[o]);
+ return {concepts,fields,objects,pickHits,erHits};
+}
+
+/* =========================================================
+   4. Prompt builders
+   ========================================================= */
+const FENCE='```';
+const SCHEMA=`{
+  "intent": "要件の要約（1文）",
+  "base_object": "オブジェクトID（例：EmpJob）",
+  "event": "onInit | onChange | onSave | onPostSave | onView",
+  "attach_to": "ルールを設定する場所とタイミングの説明",
+  "branches": [
+    {"if": {"all": [
+      {"left": {"field": "EmpJob.eventReason"}, "op": "in", "right": {"eventReasons": ["コード"]}}
+    ]},
+     "then": [{"set": "オブジェクトID.項目ID", "value": {"field": "オブジェクトID.項目ID"}}]},
+    {"if": {"any": [条件, 条件]},
+     "then": [アクション]}
+  ],
+  "else": [アクション],
+  "assumptions": ["要件をどう解釈したか"],
+  "field_resolutions": [
+    {"concept": "要件の言葉", "kind": "direct | similar | derived", "ref": "オブジェクトID.項目ID", "confidence": 0.9, "alternatives": ["別の候補"]}
+  ],
+  "new_config_needed": ["新しく作る必要がある設定"],
+  "risks": ["想定されるリスクや注意点"]
+}`;
+const SCHEMA_NOTES=`- branches は上から順に判定する分岐。1 つ目が IF、2 つ目以降が ELSE IF。要件にある分岐の数だけ書き、まとめたり省略したりしない
+- else は、どの分岐にも当てはまらないときのアクション。なければ []
+- 条件のない（常に実行する）ルールは、branches を 1 つにして "if": {"all": []}
+- if には "all"（かつ）または "any"（または）に条件の配列を入れる。条件の中に {"all": [...]} や {"any": [...]} を入れ子にできる
+- 条件は {"left": 値, "op": 演算子, "right": 値}。op は eq, ne, in, notIn, gt, lt, ge, le, isNull, isNotNull のいずれか。isNull と isNotNull は right を書かない
+- アクションは {"set": "オブジェクトID.項目ID", "value": 値}
+- 値の書き方は次の 5 種類だけ：
+  {"field": "オブジェクトID.項目ID"}
+  {"const": 値, "type": "date | string | number | boolean"}（日付は "YYYY-MM-DD"。空欄にするときは値を null にする）
+  {"picklist": "picklistID", "codes": ["コード"]}
+  {"eventReasons": ["コード"]}
+  {"fn": "関数名", "args": [値, ...]}（入れ子にできる）
+- kind は direct（そのまま対応する項目がある）、similar（近い項目しかない）、derived（複数のデータを組み合わせて判断する）
+- ここにないキーは使わない`;
+function dataSection(objIds){
+ const lines=[], pls=new Set(); let needER=false;
+ objIds.forEach(o=>{
+  const ob=OBJ[o]; if(!ob) return;
+  lines.push(`### ${o} ${ob.label}（${KIND_JA[ob.kind]||ob.kind}）`);
+  if(ob.nav.length) lines.push(`このオブジェクトを base object にしたときアクセスできるオブジェクト：${ob.nav.join(', ')}`);
+  fieldsOf(o).forEach(f=>{
+   if(f.picklist) pls.add(f.picklist); if(f.type==='eventReason') needER=true;
+   lines.push(`- ${f.ref} ${f.label}／${f.en} [${TYPE_JA[f.type]}${f.picklist?' '+f.picklist:''}]`
+    +(f.status!=='active'?' 【無効・使用不可】':'')+(f.desc?' ― '+f.desc:'')+(f.syn.length?'（同義語：'+f.syn.join('、')+'）':''));
+  });
+  lines.push('');
+ });
+ if(pls.size){lines.push('## 選択肢（picklist）');
+  pls.forEach(p=>{const v=PL[p];if(v) lines.push(`- ${p}: `+Object.entries(v).map(([c,x])=>`${c}=${x.ja}${x.status!=='A'?'【無効】':''}`).join(', '))});
+  lines.push('');}
+ if(needER){lines.push('## イベント事由（【無効】は使用不可）');
+  Object.entries(ER).forEach(([c,e])=>lines.push(`- ${c} ${e.ja}（event ${e.event}）${e.status!=='A'?'【無効】':''}`));
+  lines.push('');}
+ lines.push('## 関数（これ以外は使わない）');
+ Object.entries(FN).forEach(([n,d])=>lines.push(`- ${n}(${d.params.map(p=>TYPE_JA[p]).join(', ')}) → ${TYPE_JA[d.ret]}：${d.desc}`));
+ lines.push('','## event');
+ KN.events.forEach(e=>lines.push(`- ${e.name}：${e.desc}`));
+ return '## オブジェクトと項目\n'+lines.join('\n');
+}
+function knowledgeSection(concepts){
+ const l=[];
+ if(concepts.length){l.push('## 要件に関係する概念');concepts.forEach(c=>l.push(`- ${c.name}：${c.hint}`));l.push('')}
+ l.push('## 設計の注意点'); KN.cards.forEach(c=>l.push(`- ${c.title}：${c.body}`));
+ return l.join('\n');
+}
+function buildMakePrompt(req,an,objIds){
+ return `あなたは SAP SuccessFactors のビジネスルール設計の専門家です。
+次の要件を満たすビジネスルールを設計し、指定の JSON 形式だけで回答してください。
+
+# 要件
+${req}
+
+# 守ること
+- 項目、選択肢のコード、イベント事由、関数は「使用できるデータ」にあるものだけを使う。存在しないものを作らない
+- 【無効】の項目・選択肢・イベント事由は使わない
+- 使う項目は base object か、そのアクセスできるオブジェクトのものに限る
+- 要件の言葉が項目名と一致しなくても、意味で対応づける。対応する項目がなければ new_config_needed に新規作成を提案する
+- 確信度（confidence、0〜1）が 0.7 未満の対応づけには alternatives を 1〜3 件つける
+- 解釈した前提はすべて assumptions に書く
+- 回答は ${FENCE}json のコードブロック 1 つだけにする
+
+# 使用できるデータ（テナント：${BASE.tenant}）
+${dataSection(objIds)}
+
+# 参考知識
+${knowledgeSection(an.concepts)}
+
+# 回答の JSON 形式
+${FENCE}json
+${SCHEMA}
+${FENCE}
+${SCHEMA_NOTES}`;
+}
+function buildConvertPrompt(text,an,objIds){
+ return `あなたは SAP SuccessFactors のビジネスルールの専門家です。
+次の文章で書かれたルール案を、指定の JSON 形式に変換してください。設計は変えず、書かれている通りに変換します。
+文章に書かれていない情報を補った場合は、assumptions に書いてください。
+
+# ルール案
+${text}
+
+# 守ること
+- 項目、選択肢のコード、イベント事由、関数は「使用できるデータ」の ID をそのまま使う
+- 文章に書かれた項目が見つからない場合も勝手に置き換えず、文章の通りの名前で書き、assumptions に「見つからない」と書く
+- 回答は ${FENCE}json のコードブロック 1 つだけにする
+
+# 使用できるデータ（テナント：${BASE.tenant}）
+${dataSection(objIds)}
+
+# 回答の JSON 形式
+${FENCE}json
+${SCHEMA}
+${FENCE}
+${SCHEMA_NOTES}`;
+}
+function objectsInSolution(sol){
+ const s=new Set(); if(sol&&OBJ[sol.base_object]) s.add(sol.base_object);
+ const refs=[]; try{collectRefs(sol,refs)}catch(e){}
+ refs.forEach(r=>{const o=String(r).split('.')[0]; if(OBJ[o]) s.add(o)});
+ if(!s.size&&OBJ.EmpJob) s.add('EmpJob');
+ return [...s];
+}
+function collectRefs(x,out){
+ if(Array.isArray(x)) return x.forEach(y=>collectRefs(y,out));
+ if(x&&typeof x==='object'){ if(typeof x.field==='string') out.push(x.field); if(typeof x.set==='string') out.push(x.set);
+  Object.values(x).forEach(y=>{if(y&&typeof y==='object') collectRefs(y,out)}) }
+}
+function buildFixPrompt(sol,results){
+ const errs=[]; results.forEach(r=>r.errs.forEach(e=>errs.push(`- [${r.t}] ${e}`)));
+ return `先ほどの JSON をバリデーターで検証したところ、次のエラーが見つかりました。
+エラーをすべて修正し、同じ JSON 形式で全体をもう一度返してください。回答は ${FENCE}json のコードブロック 1 つだけにしてください。
+
+# エラー
+${errs.join('\n')}
+
+# 検証した JSON
+${FENCE}json
+${JSON.stringify(sol,null,2)}
+${FENCE}
+
+# 使用できるデータ（テナント：${BASE.tenant}）
+${dataSection(ALL_OBJ?allObjIds():objectsInSolution(sol))}
+
+# JSON 形式の決まり
+${SCHEMA_NOTES}`;
+}
+
+/* =========================================================
+   5. Extract JSON from an AI reply
+   ========================================================= */
+function extractJSON(text){
+ const t=String(text||'').trim(); if(!t) return {error:'貼り付けられた内容がありません'};
+ const cands=[]; const re=/```(?:json)?\s*([\s\S]*?)```/gi; let m;
+ while((m=re.exec(t))) cands.push(m[1]);
+ const a=t.indexOf('{'), b=t.lastIndexOf('}'); if(a>=0&&b>a) cands.push(t.slice(a,b+1));
+ cands.push(t);
+ let lastErr='';
+ for(const c of cands){
+  for(const s of [c, c.replace(/,\s*([}\]])/g,'$1')]){
+   try{const v=JSON.parse(s); if(v&&typeof v==='object'&&!Array.isArray(v)) return {sol:v}}catch(e){lastErr=e.message}
+  }
+ }
+ return {error:'JSON を読み取れませんでした（'+lastErr+'）。AI の回答に ```json のコードブロックが含まれているか確認してください。'};
+}
+
+/* =========================================================
+   6. Validator (deterministic)
+   ========================================================= */
+const OPS={eq:'等しい',ne:'等しくない',in:'次のいずれか',notIn:'次のいずれでもない',gt:'より後・より大きい',lt:'より前・より小さい',ge:'以降・以上',le:'以前・以下',isNull:'空である',isNotNull:'空でない'};
+const LIST_OPS=['in','notIn'], ORDER_OPS=['gt','lt','ge','le'], NULL_OPS=['isNull','isNotNull'];
+const TOP_KEYS=['intent','base_object','event','attach_to','branches','if','then','else','else_if','elseIf','assumptions','field_resolutions','new_config_needed','risks'];
+const isGroup=c=>c&&typeof c==='object'&&!Array.isArray(c)&&('all' in c||'any' in c);
+/* Accepts branches[], or if/then(+else_if[])(+else); returns ordered branches and else actions */
+function normalize(sol){
+ const issues=[]; let branches=[], els=[];
+ if(sol.branches!=null){
+  if(Array.isArray(sol.branches)) branches=sol.branches.slice(); else issues.push('「branches」は配列にしてください');
+  if(sol.if!=null||sol.then!=null) issues.push('「branches」と「if / then」が両方あります。どちらか一方にしてください');
+ } else {
+  if(sol.if!=null||sol.then!=null) branches.push({if:sol.if,then:sol.then});
+  const ei=sol.else_if!=null?sol.else_if:sol.elseIf;
+  if(ei!=null){ if(Array.isArray(ei)) branches.push(...ei); else issues.push('「else_if」は配列にしてください') }
+ }
+ if(sol.else!=null){ if(Array.isArray(sol.else)) els=sol.else; else issues.push('「else」は配列にしてください') }
+ const last=branches[branches.length-1];
+ if(branches.length>1&&last&&typeof last==='object'&&!('if' in last)&&!els.length){ els=Array.isArray(last.then)?last.then:[]; branches.pop() }
+ if(!branches.length) issues.push('分岐がありません。「branches」に少なくとも 1 つの分岐を書いてください');
+ return {branches,els,issues};
+}
+function validate(sol){
+ const E={shape:[],exist:[],reach:[],type:[],pick:[],er:[],fn:[],event:[]};
+ const done=()=>[
+  ['JSON の構造','必要な項目がそろい、形式が正しい',E.shape],
+  ['項目の存在と有効性','参照する項目がカタログにあり、無効化されていない',E.exist],
+  ['base object からのアクセス','項目が base object またはそのアクセス先にある',E.reach],
+  ['データ型の一致','比較・代入の両辺のデータ型が一致している',E.type],
+  ['選択肢の値','picklist のコードが存在し、有効である',E.pick],
+  ['イベント事由','イベント事由が存在し、有効である',E.er],
+  ['関数の使い方','関数が存在し、引数の数と型が正しい',E.fn],
+  ['event','event が使用可能な値である',E.event]
+ ].map(([t,s,e])=>({t,s,errs:e,ok:e.length===0}));
+ if(!sol||typeof sol!=='object'||Array.isArray(sol)){E.shape.push('JSON がオブジェクトではありません');return done()}
+ ['base_object','event'].forEach(k=>{if(!(k in sol)) E.shape.push(`「${k}」がありません`)});
+ Object.keys(sol).filter(k=>!TOP_KEYS.includes(k)).forEach(k=>E.shape.push(`不明なキー「${k}」があります。この内容は表示も検証もされません`));
+ const base=OBJ[sol.base_object];
+ if('base_object' in sol&&!base) E.reach.push(`base object「${sol.base_object}」は存在しません`);
+ if('event' in sol&&!EVENTS.includes(sol.event)) E.event.push(`event「${sol.event}」は使用できません。使用できる値：${EVENTS.join('、')}`);
+ const N=normalize(sol); N.issues.forEach(x=>E.shape.push(x));
+ const refUse=new Set();
+ const typeOf=(v,path)=>{
+  if(!v||typeof v!=='object'||Array.isArray(v)){E.shape.push(`${path}：値の形式が正しくありません`);return null}
+  if('field' in v){const r=String(v.field);refUse.add(r);const f=FS[r];return f?f.type:null}
+  if('const' in v){if(!TYPE_JA[v.type]||v.type==='picklist'||v.type==='eventReason'){E.shape.push(`${path}：定数の type「${v.type}」は使用できません`);return null}return v.type}
+  if('fn' in v){const d=FN[v.fn]; if(!d){E.fn.push(`${path}：関数「${v.fn}」は関数表にありません`);return null}
+   const args=Array.isArray(v.args)?v.args:[];
+   if(args.length!==d.params.length) E.fn.push(`${path}：「${v.fn}」の引数は ${d.params.length} 個必要ですが、${args.length} 個です`);
+   args.forEach((a,i)=>{const t=typeOf(a,`${path} › ${v.fn} 引数${i+1}`); if(t&&d.params[i]&&t!==d.params[i]) E.fn.push(`${path}：「${v.fn}」の第 ${i+1} 引数は${TYPE_JA[d.params[i]]}が必要ですが、${TYPE_JA[t]||t}です`)});
+   return d.ret}
+  if('picklist' in v){const pl=PL[v.picklist]; const codes=Array.isArray(v.codes)?v.codes:[];
+   if(!pl) E.pick.push(`${path}：picklist ${v.picklist} は存在しません`);
+   else codes.forEach(c=>{if(!(c in pl)) E.pick.push(`${path}：${v.picklist} に ${c} はありません`); else if(pl[c].status!=='A') E.pick.push(`${path}：${v.picklist} の ${c}（${pl[c].ja}）は無効です`)});
+   if(!codes.length) E.shape.push(`${path}：codes が空です`);
+   return 'picklist'}
+  if('eventReasons' in v){const codes=Array.isArray(v.eventReasons)?v.eventReasons:[];
+   codes.forEach(c=>{const e=ER[c]; if(!e) E.er.push(`${path}：イベント事由 ${c} は存在しません`); else if(e.status!=='A') E.er.push(`${path}：イベント事由 ${c}（${e.ja}）は無効です`)});
+   if(!codes.length) E.shape.push(`${path}：eventReasons が空です`);
+   return 'eventReason'}
+  E.shape.push(`${path}：値の種類を判別できません`); return null;
+ };
+ const checkCond=(c,p)=>{
+  if(!c||typeof c!=='object'||Array.isArray(c)){E.shape.push(`${p}：条件の形式が正しくありません`);return}
+  if(isGroup(c)){
+   const arr='all' in c?c.all:c.any;
+   if(!Array.isArray(arr)){E.shape.push(`${p}：all / any は配列にしてください`);return}
+   Object.keys(c).filter(k=>k!=='all'&&k!=='any').forEach(k=>E.shape.push(`${p}：不明なキー「${k}」があります`));
+   if('all' in c&&'any' in c) E.shape.push(`${p}：all と any は同時に使えません。入れ子にしてください`);
+   arr.forEach((x,j)=>checkCond(x,`${p}-${j+1}`)); return;
+  }
+  Object.keys(c).filter(k=>!['left','op','right'].includes(k)).forEach(k=>E.shape.push(`${p}：不明なキー「${k}」があります`));
+  if(!c.left||!c.op){E.shape.push(`${p}：left と op が必要です`);return}
+  if(!(c.op in OPS)){E.shape.push(`${p}：演算子「${c.op}」は使用できません`);return}
+  const lt=typeOf(c.left,p), lf=c.left.field&&FS[c.left.field], ln=lf?lf.label:'左辺';
+  if(NULL_OPS.includes(c.op)) return;
+  if(!c.right){E.shape.push(`${p}：right が必要です`);return}
+  const r=c.right, rt=typeOf(r,p);
+  if(LIST_OPS.includes(c.op)&&!('picklist' in r||'eventReasons' in r)) E.type.push(`${p}：「${OPS[c.op]}」には選択肢またはイベント事由のリストを指定してください`);
+  if(rt==='eventReason'&&lt&&lt!=='eventReason') E.type.push(`${p}：${ln}は${TYPE_JA[lt]}のため、イベント事由と比較できません`);
+  else if(rt==='picklist'&&lt&&lt!=='picklist') E.type.push(`${p}：${ln}は${TYPE_JA[lt]}のため、選択肢と比較できません`);
+  else if(rt==='picklist'&&lf&&lf.picklist!==r.picklist) E.type.push(`${p}：${lf.label}の picklist は ${lf.picklist} ですが、右辺は ${r.picklist} です`);
+  else if(lt&&rt&&rt!=='picklist'&&rt!=='eventReason'&&lt!==rt) E.type.push(`${p}：左辺は${TYPE_JA[lt]}、右辺は${TYPE_JA[rt]}です`);
+  if(ORDER_OPS.includes(c.op)&&lt&&!['date','number'].includes(lt)) E.type.push(`${p}：「${OPS[c.op]}」は日付か数値にだけ使えます`);
+ };
+ const checkActions=(list,p,required)=>{
+  if(list==null){ if(required) E.shape.push(`${p}：then がありません`); return }
+  if(!Array.isArray(list)){E.shape.push(`${p}：アクションは配列にしてください`);return}
+  list.forEach((a,k)=>{
+   const q=`${p} アクション${k+1}`;
+   if(!a||typeof a!=='object'||typeof a.set!=='string'||!a.value){E.shape.push(`${q}：set と value が必要です`);return}
+   Object.keys(a).filter(x=>x!=='set'&&x!=='value').forEach(x=>E.shape.push(`${q}：不明なキー「${x}」があります`));
+   refUse.add(a.set); const tf=FS[a.set], vt=typeOf(a.value,q);
+   if(tf&&vt){
+    if(tf.type==='picklist'){ if(vt==='picklist'&&a.value.picklist!==tf.picklist) E.type.push(`${q}：${tf.label}の picklist は ${tf.picklist} です`); else if(vt!=='picklist'&&!(a.value.field&&FS[a.value.field]&&FS[a.value.field].picklist===tf.picklist)&&!(a.value.const===null)) E.type.push(`${q}：${tf.label}は選択肢のため、${TYPE_JA[vt]}は設定できません`);
+      if(vt==='picklist'&&(a.value.codes||[]).length!==1) E.type.push(`${q}：設定する選択肢は 1 つにしてください`) }
+    else if(tf.type!==vt&&!(a.value.const===null)) E.type.push(`${q}：${tf.label}は${TYPE_JA[tf.type]}のため、${TYPE_JA[vt]}は設定できません`);
+   }
+  });
+ };
+ N.branches.forEach((b,i)=>{
+  const p=`分岐${i+1}（${i?'ELSE IF':'IF'}）`;
+  if(!b||typeof b!=='object'||Array.isArray(b)){E.shape.push(`${p}：分岐の形式が正しくありません`);return}
+  Object.keys(b).filter(k=>k!=='if'&&k!=='then').forEach(k=>E.shape.push(`${p}：不明なキー「${k}」があります`));
+  if(b.if==null) E.shape.push(`${p}：if がありません`);
+  else if(!isGroup(b.if)) E.shape.push(`${p}：if には "all" または "any" が必要です`);
+  else { const arr='all' in b.if?b.if.all:b.if.any; if(Array.isArray(arr)) arr.forEach((x,j)=>checkCond(x,`${p} 条件${j+1}`)); else E.shape.push(`${p}：all / any は配列にしてください`) }
+  checkActions(b.then,`${p} THEN`,true);
+ });
+ checkActions(N.els,'ELSE',false);
+ refUse.forEach(r=>{
+  const f=FS[r];
+  if(!f){E.exist.push(`項目 ${r} は存在しません`);return}
+  if(f.status!=='active') E.exist.push(`項目 ${r}（${f.label}）は無効化されています`);
+  if(base&&f.obj!==sol.base_object&&!base.nav.includes(f.obj)) E.reach.push(`${base.label} から ${OBJ[f.obj].label}（${r}）にはアクセスできません`);
+ });
+ return done();
+}
+
+/* =========================================================
+   7. Rendering
+   ========================================================= */
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const chevron='<svg class="chev" width="8" height="14" viewBox="0 0 8 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 1l6 6-6 6"/></svg>';
+const backIcon='<svg width="12" height="20" viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2L2 10l8 8"/></svg>';
+const trashIcon='<svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 4h11M6.5 4V2.5h3V4M4 4l.7 9.5h6.6L12 4M6.8 6.8v4.4M9.2 6.8v4.4"/></svg>';
+const okIcon='<svg width="13" height="13" viewBox="0 0 14 14" fill="none" stroke="#000" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 7.5l3 3 6-7"/></svg>';
+const ngIcon='<svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"><path d="M2 2l8 8M10 2l-8 8"/></svg>';
+function fieldChip(ref){
+ const f=FS[ref]; if(!f) return `<span class="f bad">${esc(ref)}<small>カタログにない項目</small></span>`;
+ return `<span class="f${f.status!=='active'?' bad':''}">${esc(OBJ[f.obj].label)}.${esc(f.label)}<small>${esc(ref)}</small></span>`;
+}
+function valueHTML(v){
+ if(!v||typeof v!=='object') return `<span class="lit">${esc(JSON.stringify(v))}</span>`;
+ if('field' in v) return fieldChip(v.field);
+ if('const' in v) return `<span class="lit">${v.const===null?'空欄':v.type==='boolean'?(v.const?'はい':'いいえ'):esc(v.const)}</span>`;
+ if('fn' in v) return `<span class="fn">${esc(v.fn)}</span><span class="paren">(</span>${(Array.isArray(v.args)?v.args:[]).map(valueHTML).join('<span class="paren">,</span>')}<span class="paren">)</span>`;
+ if('picklist' in v) return (v.codes||[]).map(c=>`<span class="lit">${esc(((PL[v.picklist]||{})[c]||{}).ja||'?')} ${esc(c)}</span>`).join('');
+ if('eventReasons' in v) return (v.eventReasons||[]).map(c=>`<span class="lit">${esc(ER[c]?ER[c].ja:'?')} ${esc(c)}</span>`).join('');
+ return `<span class="lit">${esc(JSON.stringify(v))}</span>`;
+}
+function leafHTML(c){
+ if(!c||typeof c!=='object') return `<span class="lit">${esc(JSON.stringify(c))}</span>`;
+ return `${valueHTML(c.left)}<span class="op">${esc(OPS[c.op]||c.op)}</span>${c.right&&!NULL_OPS.includes(c.op)?valueHTML(c.right):''}`;
+}
+function condHTML(g){
+ if(!isGroup(g)) return `<div class="expr">${leafHTML(g)}</div>`;
+ const any=!('all' in g), arr=(any?g.any:g.all);
+ if(!Array.isArray(arr)||!arr.length) return '<div class="expr"><span class="op">条件なし（常に実行）</span></div>';
+ return arr.map((x,i)=>`<div class="cond">${i?`<span class="join">${any?'または':'かつ'}</span>`:''}${isGroup(x)?`<div class="grp">${condHTML(x)}</div>`:`<div class="expr">${leafHTML(x)}</div>`}</div>`).join('');
+}
+function ruleHTML(sol){
+ const N=normalize(sol), ob=OBJ[sol.base_object];
+ const act=a=>a&&typeof a==='object'?`<div style="margin-bottom:8px"><div class="expr"><span class="op">設定</span>${fieldChip(a.set)}</div><div class="expr" style="margin-top:6px"><span class="op">値</span>${valueHTML(a.value)}</div></div>`:'';
+ const acts=l=>(Array.isArray(l)&&l.length?l.map(act).join(''):'<span class="op">何もしない</span>');
+ const blocks=N.branches.map((b,i)=>`
+  <div class="blk"><div class="kw">${i?'ELSE IF':'IF'}</div><div>${b&&b.if?condHTML(b.if):'<div class="expr"><span class="op">条件なし</span></div>'}</div></div>
+  <div class="blk sub"><div class="kw then">THEN</div><div>${acts(b&&b.then)}</div></div>`).join('');
+ const nb=N.branches.length;
+ return `<div class="rule" role="group" aria-label="ルール">
+  <div class="meta"><span class="tagd">base object <b>${esc(ob?ob.label:sol.base_object)}</b></span><span class="tagd">event <b>${esc(sol.event)}</b></span><span class="tagd">分岐 <b>${nb}${N.els.length?' + ELSE':''}</b></span></div>
+  ${sol.attach_to?`<div class="when">実行タイミング：${esc(sol.attach_to)}</div>`:''}
+  ${blocks||'<div class="blk"><div class="kw">IF</div><div class="expr"><span class="op">分岐がありません</span></div></div>'}
+  ${N.els.length?`<div class="blk"><div class="kw else">ELSE</div><div>${acts(N.els)}</div></div>`:''}
+ </div>`;
+}
+function verdictHTML(results){
+ const bad=results.filter(r=>!r.ok), n=results.length, cnt=bad.reduce((s,r)=>s+r.errs.length,0);
+ return `<div class="verdict"><div class="badge ${bad.length?'ng':'ok'}">${bad.length?ngIcon:okIcon}</div><div><div class="big">${bad.length?`${cnt} 件の問題があります`:'検証に合格しました'}</div><div class="s">${n-bad.length} / ${n} 項目のチェックに合格</div></div></div>`;
+}
+function checksHTML(results){
+ return `<div class="group">${results.map(r=>`<div class="check"><div class="ic ${r.ok?'ok':'ng'}">${r.ok?okIcon:ngIcon}</div><div><div class="t">${esc(r.t)}</div>${r.ok?`<div class="s">${esc(r.s)}</div>`:r.errs.map(e=>`<div class="err">${esc(e)}</div>`).join('')}</div></div>`).join('')}</div>`;
+}
+const list=a=>Array.isArray(a)?a.filter(x=>x!=null&&x!==''):[];
+function proposalHTML(sol,results){
+ const bad=results.some(r=>!r.ok);
+ const res=list(sol.field_resolutions);
+ const KIND={direct:'直接対応',similar:'近い項目',derived:'派生概念'};
+ return `${verdictHTML(results)}
+  ${bad?`<div class="sechead">チェック項目</div>${checksHTML(results)}`:''}
+  <div class="sechead">ルール</div>${ruleHTML(sol)}
+  ${sol.intent?`<div class="secfoot">${esc(sol.intent)}</div>`:''}
+  ${list(sol.assumptions).length?`<div class="sechead">前提</div><div class="group"><ul class="plain">${list(sol.assumptions).map(a=>`<li>${esc(a)}</li>`).join('')}</ul></div><div class="secfoot">前提が実態と合わない場合は、要件の記述を直してやり直してください。</div>`:''}
+  ${res.length?`<div class="sechead">項目の解決</div><div class="group">${res.map(r=>{
+    const c=Math.max(0,Math.min(1,Number(r.confidence)||0)), f=FS[r.ref], k=KIND[r.kind]?r.kind:'';
+    return `<div class="row"><div class="main">
+     <div class="t">${esc(r.concept)}${k?`<span class="pill ${k}">${KIND[k]}</span>`:''}</div>
+     <div class="s">${f?`${esc(OBJ[f.obj].label)}.${esc(f.label)}（${esc(r.ref)}）`:esc(r.ref)}</div>
+     <div class="conf"><div class="bar ${c<.7?'low':''}"><i style="width:${c*100}%"></i></div><span class="pct">${Math.round(c*100)}%</span></div>
+     ${list(r.alternatives).length?`<div class="s" style="margin-top:6px">${c<.7?'確信度が 70% 未満です。候補から確認してください：':'候補：'}${list(r.alternatives).map(esc).join('、')}</div>`:''}
+    </div></div>`}).join('')}</div>`:''}
+  ${list(sol.new_config_needed).length?`<div class="sechead">新規に必要な設定</div><div class="group"><ul class="plain">${list(sol.new_config_needed).map(a=>`<li>${esc(a)}</li>`).join('')}</ul></div>`:''}
+  ${list(sol.risks).length?`<div class="sechead">リスク</div><div class="group"><ul class="plain">${list(sol.risks).map(a=>`<li>${esc(a)}</li>`).join('')}</ul></div>`:''}`;
+}
+function promptBlockHTML(id,text,title){
+ return `<details class="prompt" id="${id}"><summary>${esc(title)}<span>${text.length.toLocaleString()} 文字</span></summary><pre>${esc(text)}</pre></details>`;
+}
+
+/* =========================================================
+   8. UI helpers
+   ========================================================= */
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('on');clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove('on'),1800)}
+function sheet(title,body){
+ const w=document.getElementById('sheetwrap'),s=document.getElementById('sheet');
+ s.innerHTML=`<div class="grabber"></div><div class="sheethead"><h2>${esc(title)}</h2><button class="navbtn" data-close>完了</button></div>${body}`;
+ w.classList.add('on');w.setAttribute('aria-hidden','false');s.querySelector('[data-close]').focus();
+ return s;
+}
+function closeSheet(){const w=document.getElementById('sheetwrap');w.classList.remove('on');w.setAttribute('aria-hidden','true')}
+document.getElementById('sheetwrap').addEventListener('click',e=>{if(e.target.id==='sheetwrap'||e.target.closest('[data-close]'))closeSheet()});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeSheet()});
+async function copyText(text,msg){
+ try{await navigator.clipboard.writeText(text);toast(msg||'コピーしました');return}catch(e){}
+ const ta=document.createElement('textarea');ta.value=text;ta.setAttribute('readonly','');ta.style.position='absolute';ta.style.left='-9999px';
+ document.body.appendChild(ta);ta.select();ta.setSelectionRange(0,text.length);
+ let ok=false;try{ok=document.execCommand('copy')}catch(e){} ta.remove();
+ toast(ok?(msg||'コピーしました'):'コピーできませんでした。プロンプトを開いて手動でコピーしてください');
+}
+const canShare=!!navigator.share;
+async function shareText(text){try{await navigator.share({title:'BR アシスタント',text})}catch(e){}}
+function download(name,content,type){
+ const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([content],{type}));a.download=name;
+ document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500);
+}
+/* Mark the one control the user should operate next within a view */
+function setGuide(scope,el){scope.querySelectorAll('.guide').forEach(x=>{if(x!==el)x.classList.remove('guide')});if(el)el.classList.add('guide')}
+const grp=el=>el?el.closest('.group'):null;
+function scrollToEl(el){const v=el.closest('.view');v.scrollTo({top:el.offsetTop-52,behavior:matchMedia('(prefers-reduced-motion:reduce)').matches?'auto':'smooth'})}
+const nowStr=()=>{const d=new Date();return `${d.getMonth()+1}月${d.getDate()}日 ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`};
+
+/* history of proposals */
+let HIST=store.get(KEY.hist,[]);
+function saveHistory(entry){HIST.unshift({id:Date.now()+Math.random().toString(16).slice(2,6),at:nowStr(),...entry});HIST=HIST.slice(0,50);store.set(KEY.hist,HIST);const h=stacks.hist[0];if(h&&h._refresh)h._refresh()}
+
+/* =========================================================
+   9. Navigation
+   ========================================================= */
+const stacks={make:[],check:[],hist:[],cat:[]};
+function makeView(tab,title,html,{back=null,right=''}={}){
+ const v=document.createElement('section'); v.className='view';
+ v.innerHTML=`<div class="navbar"><div>${back?`<button class="navbtn" data-back>${backIcon}<span>${esc(back)}</span></button>`:''}</div><div class="mid">${esc(title)}</div><div>${right}</div></div><div class="content">${html}</div>`;
+ v.addEventListener('scroll',()=>v.querySelector('.navbar').classList.toggle('solid',v.scrollTop>36));
+ const nb=v.querySelector('[data-back]'); if(nb) nb.onclick=()=>pop(tab);
+ return v;
+}
+function push(tab,v){
+ const pane=document.getElementById('pane-'+tab), st=stacks[tab], prev=st[st.length-1];
+ if(prev){v.classList.add('enter');pane.appendChild(v);v.getBoundingClientRect();v.classList.remove('enter');prev.classList.add('under')}
+ else pane.appendChild(v);
+ st.push(v);
+}
+function pop(tab){
+ const st=stacks[tab]; if(st.length<2)return;
+ const v=st.pop(), prev=st[st.length-1];
+ prev.classList.remove('under'); v.classList.add('enter'); setTimeout(()=>v.remove(),360);
+ if(prev._refresh) prev._refresh();
+}
+function showTab(name){
+ document.querySelectorAll('.tab[data-tab]').forEach(x=>{const on=x.dataset.tab===name;x.classList.toggle('on',on);x.toggleAttribute('aria-current',on)});
+ document.querySelectorAll('.pane').forEach(p=>p.classList.toggle('on',p.id==='pane-'+name));
+ const top=stacks[name][stacks[name].length-1]; if(top&&top._refresh) top._refresh();
+}
+document.querySelectorAll('.tab[data-tab]').forEach(b=>b.onclick=()=>showTab(b.dataset.tab));
+/* Background shade slider: 0 = Deloitte gray (default) … 100 = white — remembered per browser */
+(()=>{
+ const r=document.getElementById('shade'); if(!r) return;
+ const set=v=>{r.value=v;applyShade(v);r.setAttribute('aria-valuetext',`明るさ ${v}%`);try{localStorage.setItem('br.shade',String(v))}catch(e){}};
+ r.value=savedShade(); r.setAttribute('aria-valuetext',`明るさ ${r.value}%`);
+ r.addEventListener('input',()=>set(+r.value));
+ r.addEventListener('dblclick',()=>set(0));
+})();
+/* Layout switch: desktop (macOS style) ⇄ iPhone (original design) — remembered per browser */
+(()=>{
+ const de=document.documentElement;
+ const set=on=>{
+  closeSheet();
+  de.classList.toggle('iphone',on);
+  try{localStorage.setItem('br.layout',on?'iphone':'mac')}catch(e){}
+  applyShade(savedShade());
+  toast(on?'iPhone 表示に切り替えました':'デスクトップ表示に切り替えました');
+ };
+ document.getElementById('layoutbtn').onclick=()=>set(true);
+ document.getElementById('layoutfab').onclick=()=>set(!de.classList.contains('iphone'));
+ const mq=matchMedia('(prefers-color-scheme: dark)');
+ if(mq.addEventListener) mq.addEventListener('change',()=>{if(de.classList.contains('iphone'))applyShade(savedShade())});
+})();
+/* Fullscreen toggle (browser Fullscreen API) */
+(()=>{
+ const b=document.getElementById('fsbtn'), de=document.documentElement;
+ const req=de.requestFullscreen||de.webkitRequestFullscreen, exit=document.exitFullscreen||document.webkitExitFullscreen;
+ const cur=()=>document.fullscreenElement||document.webkitFullscreenElement;
+ if(!req){b.classList.add('hidden');return}
+ const sync=()=>{b.querySelector('.tablabel').textContent=cur()?'全画面表示を終了':'全画面表示'};
+ b.onclick=()=>{try{cur()?exit.call(document):req.call(de)}catch(e){toast('全画面表示にできませんでした')}};
+ document.addEventListener('fullscreenchange',sync); document.addEventListener('webkitfullscreenchange',sync);
+})();
+
+/* =========================================================
+   10. Samples (try without AI)
+   ========================================================= */
+const SAMPLES=(()=>{
+ const isHire={left:{field:'EmpJob.event'},op:'eq',right:{picklist:'event',codes:['H']}};
+ const cls=c=>({left:{field:'EmpJob.employeeClass'},op:'eq',right:{picklist:'employeeclass',codes:[c]}});
+ const rsn=c=>({left:{field:'EmpJob.eventReason'},op:'in',right:{eventReasons:[c]}});
+ const prob=v=>[{set:'EmpJob.probationPeriodEndDate',value:v}];
+ const after=m=>({fn:'Add Days',args:[{fn:'Add Months',args:[{field:'EmpJob.startDate'},{const:m,type:'number'}]},{const:-1,type:'number'}]});
+ return [
+ {match:/雇用区分|社員区分/,req:'入社の発令で職務情報を保存するとき、試用期間終了日を雇用区分に応じて自動でセットしたい。\n\n・雇用区分が正社員で、入社の理由が新卒の場合は、入社日の6か月後の前日にする\n・それ以外で、雇用区分が正社員で、入社の理由が中途採用の場合は、入社日の3か月後の前日にする\n・それ以外で、雇用区分が契約社員の場合は、入社日の1か月後の前日にする\n・それ以外で、雇用区分がパートタイマーの場合は、入社日の2か月後の前日にする\n・それ以外で、雇用区分が嘱託社員の場合は、試用期間を設けないので、入社日と同じ日にする\n・どれにも当てはまらない場合は、試用期間終了日を空欄にする',sol:{
+  intent:'入社時に、雇用区分と入社事由に応じて試用期間終了日を自動設定する',base_object:'EmpJob',event:'onSave',attach_to:'職務情報の保存時',
+  branches:[
+   {if:{all:[isHire,cls('1'),rsn('HIRNEW')]},then:prob(after(6))},
+   {if:{all:[isHire,cls('1'),rsn('HIRMID')]},then:prob(after(3))},
+   {if:{all:[isHire,cls('2')]},then:prob(after(1))},
+   {if:{all:[isHire,cls('4')]},then:prob(after(2))},
+   {if:{all:[isHire,cls('3')]},then:prob({field:'EmpJob.startDate'})}
+  ],
+  else:prob({const:null,type:'date'}),
+  assumptions:['「雇用区分」＝EmpJob.employeeClass（カタログ上のラベルは「社員区分」）','「入社日」＝職務情報の発令日 EmpJob.startDate（入社の発令レコードの開始日）','「新卒」＝イベント事由 HIRNEW、「中途採用」＝HIRMID','「入社の発令」＝イベント H 入社。再入社 R は対象外'],
+  field_resolutions:[
+   {concept:'雇用区分',kind:'similar',ref:'EmpJob.employeeClass',confidence:.86,alternatives:['EmpJob.employmentType（雇用形態：フルタイム／パートタイム）']},
+   {concept:'入社日',kind:'similar',ref:'EmpJob.startDate',confidence:.74,alternatives:['EmpEmployment.startDate（雇用情報の入社日）']},
+   {concept:'新卒・中途採用',kind:'derived',ref:'EmpJob.eventReason',confidence:.9,alternatives:[]},
+   {concept:'試用期間終了日',kind:'direct',ref:'EmpJob.probationPeriodEndDate',confidence:.97,alternatives:[]}],
+  new_config_needed:[],
+  risks:['ELSE は入社以外の発令（異動など）でも実行され、試用期間終了日が空欄に上書きされる。入社時だけに限定するなら、ELSE を「イベントが入社」の ELSE IF に変える','正社員でイベント事由が新卒・中途以外の場合は、ELSE に入り空欄になる']}},
+ {match:/昇格|昇進/,req:'昇格の発令があったら、昇格年月日を自動セットしたい',sol:{
+  intent:'昇格の発令時に、昇格年月日として発令日を記録する',base_object:'EmpJob',event:'onSave',attach_to:'職務情報の保存時',
+  branches:[{if:{all:[{left:{field:'EmpJob.eventReason'},op:'in',right:{eventReasons:['PRM_REG','PRM_SPC']}}]},then:[{set:'EmpJob.customDate1',value:{field:'EmpJob.startDate'}}]}],else:[],
+  assumptions:['「昇格」＝等級が上がるイベント事由：PRM_REG 定期昇格、PRM_SPC 抜擢昇格','PRM_TTL 役職昇進は役職のみが変わり等級は変わらないため、昇格に含めない','PRM_OLD 昇格（旧制度）は無効のため除外','「昇格年月日」は当該職務情報レコードの発令日とする'],
+  field_resolutions:[{concept:'昇格',kind:'derived',ref:'EmpJob.eventReason',confidence:.91,alternatives:[]},
+   {concept:'昇格年月日（保存先）',kind:'similar',ref:'EmpJob.customDate1',confidence:.62,alternatives:['custom-date 項目「昇格日」を新規作成（推奨）','cust_PromotionHistory.effectiveStartDate に記録']},
+   {concept:'発令日',kind:'direct',ref:'EmpJob.startDate',confidence:.97,alternatives:[]}],
+  new_config_needed:['「最終等級変更日」を流用しない場合：職務情報に日付項目「昇格日」を新規作成し、Data Model と権限を更新する'],
+  risks:['過去日付の昇格レコードを追加すると、古い日付で上書きされる。必要に応じて「新しい値が既存値より後」の条件を追加する','インポートで職務情報を作成する場合、ルールが実行されるかはインポート設定による']}},
+ {match:/課長|裁量/,req:'役職が課長以上なら裁量労働対象をオン、それ以外はオフにしたい',sol:{
+  intent:'役職が課長以上の場合、裁量労働対象を自動でオンにする',base_object:'EmpJob',event:'onChange',attach_to:'職務情報 › 役職（customString3）の変更時',
+  branches:[{if:{all:[{left:{field:'EmpJob.customString3'},op:'in',right:{picklist:'JP_Position',codes:['MGR','SMGR','EXE']}}]},then:[{set:'EmpJob.customBoolean1',value:{const:true,type:'boolean'}}]}],
+  else:[{set:'EmpJob.customBoolean1',value:{const:false,type:'boolean'}}],
+  assumptions:['「課長以上」＝JP_Position の MGR 課長、SMGR 部長、EXE 本部長','picklist 自体に序列がないため、値を個別に列挙'],
+  field_resolutions:[{concept:'役職',kind:'direct',ref:'EmpJob.customString3',confidence:.95,alternatives:[]},
+   {concept:'課長以上',kind:'derived',ref:'JP_Position: MGR / SMGR / EXE',confidence:.88,alternatives:[]},
+   {concept:'裁量労働対象',kind:'direct',ref:'EmpJob.customBoolean1',confidence:.96,alternatives:[]}],
+  new_config_needed:[],
+  risks:['onChange だけではインポートや API での更新時に実行されないことがある。同じルールを onSave にも設定することを推奨','ELSE により、手動でオンにした例外者もオフに戻される']}},
+ {match:/試用/,req:'入社の発令時に、試用期間終了日を発令日の6か月後の前日にセットしたい',sol:{
+  intent:'入社時に試用期間終了日を自動計算する',base_object:'EmpJob',event:'onChange',attach_to:'職務情報 › 発令日（startDate）の変更時',
+  branches:[{if:{all:[isHire]},then:prob(after(6))}],else:[],
+  assumptions:['「入社の発令」＝イベント H 入社。再入社 R は対象外','「6か月後の前日」＝発令日に6か月を加算し、1日を減算'],
+  field_resolutions:[{concept:'入社の発令',kind:'direct',ref:'EmpJob.event',confidence:.9,alternatives:['イベント事由 HIRNEW / HIRMID で判定']},
+   {concept:'試用期間終了日',kind:'direct',ref:'EmpJob.probationPeriodEndDate',confidence:.97,alternatives:[]},
+   {concept:'発令日',kind:'direct',ref:'EmpJob.startDate',confidence:.97,alternatives:[]}],
+  new_config_needed:[],
+  risks:['試用期間が人によって異なる場合（例：中途入社は3か月）、イベント事由ごとに分岐が必要','onSave にも設定し、インポートデータでも終了日が計算されるようにする']}}
+ ];
+})();
+const sampleReply=sol=>`要件を確認しました。以下が設計案です。\n\n${FENCE}json\n${JSON.stringify(sol,null,2)}\n${FENCE}\n\n前提は assumptions に記載しています。`;
+
+/* =========================================================
+   11. Tab: ルール作成
+   ========================================================= */
+function makeTabView(){
+ const v=makeView('make','ルール作成',`
+  <h1 class="largetitle">ルール作成</h1>
+  <p class="subtitle">要件からプロンプトを作り、AI の回答を取り込んで検証します。AI の利用料はかかりません。</p>
+  <div class="tenant"><i></i>テナント：${esc(BASE.tenant)}</div>
+  <div class="stephead" id="h1"><span class="n">1</span>要件を入力</div>
+  <div class="group"><label class="sr" for="req">要件</label><textarea id="req" class="field" placeholder="例：役職が課長以上なら裁量労働対象をオンにしたい"></textarea></div>
+  <div class="chips" aria-label="入力例">${SAMPLES.map((s,i)=>`<button class="chip" data-sample="${i}">${esc(s.req.split('\n')[0].slice(0,15))}…</button>`).join('')}</div>
+  <button class="btn" id="mk" disabled>プロンプトを作成</button>
+  <div id="s2"></div><div id="s3"></div><div id="s4"></div>`);
+ const ta=v.querySelector('#req'), mk=v.querySelector('#mk'), s2=v.querySelector('#s2'), s3=v.querySelector('#s3'), s4=v.querySelector('#s4');
+ let an=null, sel=[], prompt='', reqText='', reply='';
+ /* step: req → copy → paste → (fix → repaste → paste …) → done */
+ let step='req';
+ function updGuide(){
+  const q=s=>v.querySelector(s); let t=null;
+  if(step==='req') t=ta.value.trim()?mk:grp(ta);
+  else if(step==='copy') t=q('#cp');
+  else if(step==='paste') t=reply.trim()?q('#imp'):grp(q('#rep'));
+  else if(step==='repaste') t=grp(q('#rep'));
+  else if(step==='fix') t=q('#fxcp');
+  setGuide(v,t);
+ }
+ const go=s=>{step=s;updGuide()};
+ const sync=()=>{mk.disabled=!ta.value.trim();updGuide()};
+ ta.addEventListener('input',sync);
+ v.querySelectorAll('[data-sample]').forEach(b=>b.onclick=()=>{ta.value=SAMPLES[+b.dataset.sample].req;sync();ta.focus()});
+ mk.onclick=()=>{reqText=ta.value.trim(); an=analyze(reqText); sel=an.objects.slice(0,3); reply=''; step='copy'; drawS2(); drawS3(); s4.innerHTML=''; v.querySelector('#h1').classList.add('done'); updGuide(); scrollToEl(s2)};
+ function drawS2(){
+  prompt=buildMakePrompt(reqText,an,ALL_OBJ?allObjIds():sel);
+  const top=an.fields.slice(0,8);
+  s2.innerHTML=`<div class="stephead"><span class="n">2</span>AI に送る</div>
+   <div class="sechead">ローカル解析の結果</div>
+   <div class="group">
+    <div class="row stack"><div class="t" style="font-size:15px">見つかった概念</div><div>${an.concepts.length?an.concepts.map(c=>`<span class="tag">${esc(c.name)}</span>`).join(''):'<span class="s">なし（項目名とラベルだけで検索しました）</span>'}</div></div>
+    <div class="row stack"><div class="t" style="font-size:15px">候補の項目</div>${top.length?top.map(f=>`<div class="s">${esc(OBJ[FS[f.ref].obj].label)}.${esc(FS[f.ref].label)}（${esc(f.ref)}）：${esc(f.why.slice(0,2).join('、'))}</div>`).join(''):'<div class="s">見つかりませんでした。下でオブジェクトを選ぶと、その項目がすべてプロンプトに入ります。</div>'}</div>
+   </div>
+   <div class="sechead">プロンプトに含めるデータ</div>
+   <div class="group"><div class="row"><label class="main t" for="allsw">項目カタログ全体を含める<div class="s">${Object.keys(OBJ).length} オブジェクト、${Object.keys(FS).length} 項目</div></label><label class="switch"><input id="allsw" type="checkbox" ${ALL_OBJ?'checked':''}><span></span></label></div></div>
+   ${ALL_OBJ?`<div class="secfoot">AI はカタログ全体から項目を選びます。プロンプトが長すぎる場合はオフにして、使うオブジェクトだけを選んでください。</div>`:
+   `<div class="chips wrap" style="padding:10px 16px 0">${Object.keys(OBJ).map(o=>`<button class="chip" data-inc="${o}" aria-pressed="${sel.includes(o)}">${esc(OBJ[o].label)}</button>`).join('')}</div>
+   <div class="secfoot">選んだオブジェクトの項目だけがプロンプトに入ります。最初は、要件に関係しそうなオブジェクトが選ばれています。</div>`}
+   <div style="height:12px"></div>${promptBlockHTML('pv',prompt,'プロンプトを表示')}
+   <div class="btnrow"><button class="btn" id="cp">プロンプトをコピー</button>${canShare?'<button class="btn plain" id="sh">共有</button>':''}</div>
+   <div class="secfoot">Claude などの AI チャットに貼り付けて送信してください。AI が返した回答を、次の欄にそのまま貼り付けます。</div>`;
+  s2.querySelector('#allsw').onchange=e=>{ALL_OBJ=e.target.checked;store.set(KEY.all,ALL_OBJ);drawS2()};
+  s2.querySelectorAll('[data-inc]').forEach(b=>b.onclick=()=>{const o=b.dataset.inc;sel=sel.includes(o)?sel.filter(x=>x!==o):[...sel,o];if(!sel.length)sel=[o];drawS2()});
+  s2.querySelector('#cp').onclick=()=>{copyText(prompt,'プロンプトをコピーしました');if(step==='copy')go('paste')};
+  const sh=s2.querySelector('#sh'); if(sh) sh.onclick=()=>{shareText(prompt);if(step==='copy')go('paste')};
+  updGuide();
+ }
+ function drawS3(){
+  const smp=SAMPLES.find(s=>s.match.test(reqText));
+  s3.innerHTML=`<div class="stephead"><span class="n">3</span>AI の回答を貼り付け</div>
+   <div class="group"><label class="sr" for="rep">AI の回答</label><textarea id="rep" class="field mono" style="min-height:160px" placeholder="AI の回答をそのまま貼り付けてください。説明文が含まれていても JSON の部分だけを取り出します。">${esc(reply)}</textarea></div>
+   ${smp?'<div style="margin:0 36px"><button class="linkbtn" id="smp">サンプルの回答を入れる（AI を使わずに試す）</button></div>':''}
+   <button class="btn" id="imp">取り込んで検証</button>`;
+  const rep=s3.querySelector('#rep');
+  rep.oninput=()=>{reply=rep.value;if(['copy','repaste','paste','done','fix'].includes(step))step='paste';updGuide()};
+  const sb=s3.querySelector('#smp'); if(sb) sb.onclick=()=>{reply=sampleReply(smp.sol);rep.value=reply;go('paste')};
+  s3.querySelector('#imp').onclick=()=>importReply(reply);
+ }
+ function importReply(text){
+  const x=extractJSON(text);
+  if(x.error){go('repaste');s4.innerHTML=`<div class="stephead"><span class="n">4</span>検証結果</div><div class="group"><div class="check"><div class="ic ng">${ngIcon}</div><div><div class="t">JSON を取り込めません</div><div class="err">${esc(x.error)}</div></div></div></div>`;scrollToEl(s4);return}
+  showResult(x.sol,true);
+ }
+ function showResult(sol,save){
+  const r=validate(sol), bad=r.some(c=>!c.ok);
+  s4.innerHTML=`<div class="stephead${bad?'':' done'}"><span class="n">4</span>検証結果</div>${proposalHTML(sol,r)}
+   ${bad?`<div class="sechead">修正を依頼する</div>${promptBlockHTML('fx',buildFixPrompt(sol,r),'修正プロンプトを表示')}
+    <div class="btnrow"><button class="btn" id="fxcp">修正プロンプトをコピー</button>${canShare?'<button class="btn plain" id="fxsh">共有</button>':''}</div>
+    <div class="secfoot">同じ AI の会話に貼り付けると、エラーを直した JSON が返ってきます。その回答を 3 に貼り付けて、もう一度検証してください。</div>`:''}
+   <div class="btnrow"><button class="btn plain" id="jcp">JSON をコピー</button><button class="btn plain" id="again">新しい要件</button></div>`;
+  if(bad){const fp=buildFixPrompt(sol,r); s4.querySelector('#fxcp').onclick=()=>{copyText(fp,'修正プロンプトをコピーしました');go('repaste')}; const fs=s4.querySelector('#fxsh'); if(fs) fs.onclick=()=>{shareText(fp);go('repaste')}}
+  go(bad?'fix':'done');
+  s4.querySelector('#jcp').onclick=()=>copyText(JSON.stringify(sol,null,2),'JSON をコピーしました');
+  s4.querySelector('#again').onclick=()=>{ta.value='';step='req';sync();s2.innerHTML=s3.innerHTML=s4.innerHTML='';v.querySelector('#h1').classList.remove('done');v.scrollTo({top:0});ta.focus()};
+  if(save){saveHistory({request:reqText,sol,ok:!bad});toast(bad?'履歴に保存しました（要修正）':'検証に合格しました。履歴に保存しました')}
+  scrollToEl(s4);
+ }
+ updGuide();
+ return v;
+}
+
+/* =========================================================
+   12. Tab: ルール検証
+   ========================================================= */
+const BAD_SAMPLE={intent:'昇格時に最終等級変更日をセット',base_object:'EmpJob',event:'onSave',attach_to:'職務情報の保存時',
+ branches:[
+  {if:{all:[{left:{field:'EmpJob.eventReason'},op:'in',right:{eventReasons:['PRM_REG','PRM_OLD']}}]},then:[{set:'EmpJob.customDate1',value:{field:'PerPersonal.lastName'}}]},
+  {if:{all:[{left:{field:'EmpJob.eventReason'},op:'in',right:{eventReasons:['PRM_SPC']}}]},then:[{set:'EmpJob.customDate9',value:{fn:'Add Months',args:[{field:'EmpJob.startDate'}]}}]}
+ ],else:[]};
+function checkTabView(){
+ const st={mode:'json',json:JSON.stringify(BAD_SAMPLE,null,2),nl:'職務情報の保存時、イベント事由が定期昇格なら、最終等級変更日に発令日をセットする'};
+ const v=makeView('check','ルール検証',`
+  <h1 class="largetitle">ルール検証</h1>
+  <p class="subtitle">提案に含まれる項目・選択肢・関数が、このテナントで使えるかを確認します。</p>
+  <div class="seg" role="tablist"><button role="tab" data-mode="json">JSON・AI の回答</button><button role="tab" data-mode="nl">文章のルール案</button></div>
+  <div id="vin"></div><div id="vout"></div>`);
+ const vin=v.querySelector('#vin'), out=v.querySelector('#vout');
+ /* json mode: run → (fix → edit → run) / done ; nl mode: conv → copy → paste */
+ let step='run';
+ function updGuide(){
+  const q=s=>v.querySelector(s); let t=null;
+  if(st.mode==='json'){
+   if(step==='fix') t=q('#fxcp');
+   else if(step==='run') t=st.json.trim()?q('#vgo'):grp(q('#vj'));
+   else if(step==='edit') t=grp(q('#vj'));
+  } else {
+   if(step==='conv') t=st.nl.trim()?q('#vcv'):grp(q('#vn'));
+   else if(step==='copy') t=q('#cvcp');
+   else if(step==='paste') t=q('#topaste');
+  }
+  setGuide(v,t);
+ }
+ const go=s=>{step=s;updGuide()};
+ function draw(){
+  v.querySelectorAll('[data-mode]').forEach(b=>{const on=b.dataset.mode===st.mode;b.classList.toggle('on',on);b.setAttribute('aria-selected',on)});
+  if(st.mode==='json'){
+   vin.innerHTML=`<div class="sechead">JSON または AI の回答</div><div class="group"><label class="sr" for="vj">JSON</label><textarea id="vj" class="field mono" spellcheck="false">${esc(st.json)}</textarea></div>
+    <div class="secfoot">AI の回答をそのまま貼り付けても、JSON の部分だけを取り出します。サンプルにはわざと誤りを入れています。</div>
+    <button class="btn" id="vgo">検証を実行</button>`;
+   vin.querySelector('#vj').oninput=e=>{st.json=e.target.value;go('run')};
+   vin.querySelector('#vgo').onclick=run;
+  } else {
+   vin.innerHTML=`<div class="sechead">文章で書いたルール案</div><div class="group"><label class="sr" for="vn">ルール案</label><textarea id="vn" class="field">${esc(st.nl)}</textarea></div>
+    <div class="secfoot">ルール案を JSON に変換するためのプロンプトを作ります。AI の回答を「JSON・AI の回答」に貼り付けて検証してください。</div>
+    <button class="btn" id="vcv">変換プロンプトを作成</button>`;
+   vin.querySelector('#vn').oninput=e=>{st.nl=e.target.value;go('conv')};
+   vin.querySelector('#vcv').onclick=()=>{
+    if(!st.nl.trim()){toast('ルール案を入力してください');return}
+    step='copy';
+    const an=analyze(st.nl), p=buildConvertPrompt(st.nl.trim(),an,ALL_OBJ?allObjIds():an.objects.slice(0,3));
+    out.innerHTML=`<div class="sechead">変換プロンプト</div>${promptBlockHTML('cv',p,'プロンプトを表示')}
+     <div class="btnrow"><button class="btn" id="cvcp">プロンプトをコピー</button>${canShare?'<button class="btn plain" id="cvsh">共有</button>':''}</div>
+     <button class="btn plain" id="topaste">AI の回答を貼り付ける</button>`;
+    out.querySelector('#cvcp').onclick=()=>{copyText(p,'プロンプトをコピーしました');go('paste')};
+    const s=out.querySelector('#cvsh'); if(s) s.onclick=()=>{shareText(p);go('paste')};
+    out.querySelector('#topaste').onclick=()=>{st.mode='json';st.json='';step='run';out.innerHTML='';draw();vin.querySelector('#vj').focus()};
+    updGuide();
+    scrollToEl(out);
+   };
+  }
+  updGuide();
+ }
+ function run(){
+  const x=extractJSON(st.json);
+  if(x.error){go('edit');out.innerHTML=`<div class="sechead">結果</div><div class="group"><div class="check"><div class="ic ng">${ngIcon}</div><div><div class="t">JSON を読み取れません</div><div class="err">${esc(x.error)}</div></div></div></div>`;scrollToEl(out);return}
+  const sol=x.sol, r=validate(sol), bad=r.some(c=>!c.ok), fp=bad?buildFixPrompt(sol,r):'';
+  out.innerHTML=`<div class="sechead">結果</div>${proposalHTML(sol,r)}
+   ${bad?`<div class="sechead">修正を依頼する</div>${promptBlockHTML('cfx',fp,'修正プロンプトを表示')}
+    <div class="btnrow"><button class="btn" id="fxcp">修正プロンプトをコピー</button>${canShare?'<button class="btn plain" id="fxsh">共有</button>':''}</div>
+    <div class="secfoot">同じ AI の会話に貼り付けると、エラーを直した JSON が返ってきます。その回答を上の欄に貼り付けて、もう一度検証してください。</div>`:''}
+   <button class="btn plain" id="sv">履歴に保存</button>`;
+  if(bad){out.querySelector('#fxcp').onclick=()=>{copyText(fp,'修正プロンプトをコピーしました');go('edit')};const s=out.querySelector('#fxsh');if(s)s.onclick=()=>{shareText(fp);go('edit')}}
+  go(bad?'fix':'done');
+  out.querySelector('#sv').onclick=e=>{saveHistory({request:sol.intent||'（検証画面から保存）',sol,ok:!bad});e.target.disabled=true;e.target.textContent='履歴に保存しました'};
+  scrollToEl(out);
+ }
+ v.querySelectorAll('[data-mode]').forEach(b=>b.onclick=()=>{st.mode=b.dataset.mode;step=st.mode==='json'?'run':'conv';out.innerHTML='';draw()});
+ draw(); return v;
+}
+
+/* =========================================================
+   13. Tab: 履歴
+   ========================================================= */
+function histTabView(){
+ const v=makeView('hist','履歴',`<h1 class="largetitle">履歴</h1><p class="subtitle">検証した提案です。この端末の中にだけ保存されます。</p><div id="hl"></div>`);
+ const hl=v.querySelector('#hl');
+ /* click once to arm (turns red), click again within 3 s to delete */
+ const arm=(b,armed,idle,fire)=>{
+  if(b.dataset.arm!=='1'){b.dataset.arm='1';b.classList.add('arm');b.querySelector('span').textContent=armed;
+   clearTimeout(b._t);b._t=setTimeout(()=>{b.dataset.arm='';b.classList.remove('arm');b.querySelector('span').textContent=idle},3000);return}
+  clearTimeout(b._t);fire();
+ };
+ v._refresh=()=>{
+  if(!HIST.length){hl.innerHTML=`<div class="group"><div class="empty">まだ履歴はありません。ルール作成で AI の回答を検証すると、ここに保存されます。</div></div>`;return}
+  hl.innerHTML=`<div class="sechead">${HIST.length} 件</div><div class="group">${HIST.map(h=>{const ok=validate(h.sol).every(c=>c.ok);
+   return `<div class="row hrow"><button class="hopen" data-h="${esc(h.id)}"><div class="dotic" style="background:${ok?'var(--green)':'var(--red)'}">${ok?okIcon:ngIcon}</div><div class="main"><div class="t">${esc(h.sol.intent||h.request||'（要件なし）')}</div><div class="s">${esc(h.at)}</div></div>${chevron}</button>
+    <button class="hdel" data-del="${esc(h.id)}" title="この履歴を削除" aria-label="この履歴を削除">${trashIcon}<span></span></button></div>`}).join('')}</div>
+   <div class="secfoot">一覧の合否は、現在のカタログで検証し直した結果です。ゴミ箱をクリックし、もう一度クリックすると削除します。</div>
+   <button class="btn danger" id="hclear"><span>すべての履歴を削除</span></button>`;
+  hl.querySelectorAll('[data-h]').forEach(b=>b.onclick=()=>{const h=HIST.find(x=>x.id===b.dataset.h);if(h)push('hist',histDetailView(h))});
+  hl.querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>arm(b,'削除','',()=>{
+   HIST=HIST.filter(x=>x.id!==b.dataset.del);store.set(KEY.hist,HIST);toast('履歴を削除しました');v._refresh();
+  }));
+  const c=hl.querySelector('#hclear'); c.onclick=()=>arm(c,`もう一度クリックすると ${HIST.length} 件をすべて削除します`,'すべての履歴を削除',()=>{
+   HIST=[];store.set(KEY.hist,HIST);toast('すべての履歴を削除しました');v._refresh();
+  });
+ };
+ v._refresh(); return v;
+}
+function histDetailView(h){
+ const v=makeView('hist','提案',`<h1 class="largetitle">提案</h1><p class="subtitle">${esc(h.at)}</p>
+  <div class="sechead">要件</div><div class="group"><div class="row"><div class="main"><div class="t" style="font-size:15px">${esc(h.request||'（なし）')}</div></div></div></div>
+  <div id="hd"></div>`,{back:'履歴'});
+ const hd=v.querySelector('#hd');
+ v._refresh=()=>{
+  const r=validate(h.sol), bad=r.some(c=>!c.ok);
+  hd.innerHTML=`<div class="sechead">現在のカタログで再検証</div>${proposalHTML(h.sol,r)}
+   <div class="btnrow"><button class="btn plain" id="jcp">JSON をコピー</button>${bad?'<button class="btn plain" id="fxcp">修正プロンプト</button>':''}</div>
+   <button class="btn danger" id="del">この履歴を削除</button>`;
+  hd.querySelector('#jcp').onclick=()=>copyText(JSON.stringify(h.sol,null,2),'JSON をコピーしました');
+  const f=hd.querySelector('#fxcp'); if(f) f.onclick=()=>copyText(buildFixPrompt(h.sol,r),'修正プロンプトをコピーしました');
+  const d=hd.querySelector('#del'); d.onclick=()=>{
+   if(d.dataset.arm!=='1'){d.dataset.arm='1';d.textContent='もう一度クリックすると削除します';setTimeout(()=>{d.dataset.arm='';d.textContent='この履歴を削除'},3000);return}
+   HIST=HIST.filter(x=>x.id!==h.id);store.set(KEY.hist,HIST);toast('削除しました');pop('hist');
+  };
+ };
+ v._refresh(); return v;
+}
+
+/* =========================================================
+   14. Tab: 項目カタログ
+   ========================================================= */
+function persistCatalog(){store.set(KEY.over,OVER);store.set(KEY.manual,MANUAL);store.set(KEY.clog,CLOG);store.set(KEY.objOver,OBJOVER);store.set(KEY.objManual,MOBJ);rebuild()}
+const ORIGIN_PILL=o=>o==='overridden'?'<span class="pill overridden">変更済み</span>':o==='manual'?'<span class="pill manual">手動追加</span>':'';
+function objRow(id,o){
+ const fs=fieldsOf(id), m=fs.filter(f=>f.origin!=='sync').length;
+ return `<button class="row" data-obj="${esc(id)}"><div class="main"><div class="t">${esc(o.label)}${ORIGIN_PILL(o.origin)}</div><div class="s">${esc(id)}</div></div><span class="v">${fs.length} 項目${m?`、${m} 件変更`:''}</span>${chevron}</button>`;
+}
+function logChange(ref,attr,before,after,extra){CLOG.push({id:Date.now()+Math.random().toString(16).slice(2,6),ref,attr,before,after,at:nowStr(),...(extra||{})})}
+function fieldRow(f){
+ return `<button class="row" data-field="${esc(f.ref)}"><div class="typeicon ty-${f.type}" aria-hidden="true">${TYPE_IC[f.type]||'?'}</div><div class="main"><div class="t">${esc(f.label)}${f.status!=='active'?'<span class="pill inactive">無効</span>':''}${f.origin==='overridden'?'<span class="pill overridden">変更済み</span>':''}${f.origin==='manual'?'<span class="pill manual">手動追加</span>':''}</div><div class="s">${esc(f.ref)}</div></div>${chevron}</button>`;
+}
+function catTabView(){
+ const v=makeView('cat','項目カタログ',`
+  <h1 class="largetitle">項目カタログ</h1>
+  <div class="tenant"><i></i>${esc(BASE.tenant)}（${esc(BASE.version)}）</div>
+  <div class="search"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="7" cy="7" r="5.2"/><path d="M11 11l3.5 3.5"/></svg><label class="sr" for="cq">項目を検索</label><input id="cq" type="search" placeholder="ラベル・同義語・項目名で検索"></div>
+  <div id="cl"></div>
+  <button class="btn plain" id="newobj2">オブジェクトを追加</button>`,{right:'<button class="navbtn" id="newobj">オブジェクトを追加</button><button class="navbtn" id="more">管理</button>'});
+ const cl=v.querySelector('#cl'), q=v.querySelector('#cq');
+ function draw(){
+  const s=norm(q.value);
+  if(s){
+   const oh=Object.entries(OBJ).filter(([id,o])=>norm([id,o.label,o.en].join(' ')).includes(s));
+   const hits=Object.values(FS).filter(f=>norm([f.label,f.en,f.ref,f.desc,...f.syn].join(' ')).includes(s));
+   cl.innerHTML=(oh.length?`<div class="sechead">${oh.length} 件のオブジェクト</div><div class="group">${oh.map(([id,o])=>objRow(id,o)).join('')}</div>`:'')
+    +`<div class="sechead">${hits.length} 件の項目</div>`+(hits.length?`<div class="group">${hits.map(fieldRow).join('')}</div>`:`<div class="group"><div class="empty">一致する項目はありません。項目の詳細で同義語を追加すると、次回から見つかるようになります。</div></div>`);
+  } else {
+   const nChanged=Object.values(FS).filter(f=>f.origin!=='sync').length;
+   const nObj=Object.values(OBJ).filter(o=>o.origin!=='sync').length+Object.values(OBJOVER).filter(o=>o.deleted).length;
+   const groups=Object.entries(KIND_JA).concat([['_other','その他']]);
+   cl.innerHTML=groups.map(([k,g])=>{const os=Object.entries(OBJ).filter(([,o])=>k==='_other'?!KIND_JA[o.kind]:o.kind===k); if(!os.length) return '';
+    return `<div class="sechead">${g}</div><div class="group">${os.map(([id,o])=>objRow(id,o)).join('')}</div>`}).join('')
+    +(Object.keys(OBJ).length?'':'<div class="group" style="margin-top:16px"><div class="empty">オブジェクトがありません。「オブジェクトを追加」から追加してください。</div></div>')
+    +`<div class="secfoot">${nChanged||nObj?`この端末で ${nObj?`${nObj} オブジェクト、`:''}${nChanged} 項目を変更しています。右上の「管理」から catalog.js に書き出せます。`:'変更はこの端末に保存されます。右上の「管理」から書き出しや読み込みができます。'}</div>`;
+  }
+  cl.querySelectorAll('[data-obj]').forEach(b=>b.onclick=()=>push('cat',objView(b.dataset.obj)));
+  cl.querySelectorAll('[data-field]').forEach(b=>b.onclick=()=>push('cat',fieldView(b.dataset.field,'項目カタログ')));
+ }
+ q.addEventListener('input',draw);
+ v.querySelector('#more').onclick=manageSheet;
+ v.querySelector('#newobj').onclick=v.querySelector('#newobj2').onclick=()=>push('cat',objEditView(null));
+ v._refresh=draw; draw(); return v;
+}
+function manageSheet(){
+ const nO=Object.keys(OVER).length, nM=Object.keys(MANUAL).length;
+ const delObjs=Object.keys(OBJOVER).filter(id=>OBJOVER[id].deleted&&BASE.objects[id]);
+ const nOO=Object.keys(OBJOVER).filter(id=>!OBJOVER[id].deleted).length, nMO=Object.keys(MOBJ).length;
+ const s=sheet('カタログの管理',`
+  <div class="group">
+   <div class="row"><div class="main"><div class="t">テナント</div></div><span class="v">${esc(BASE.tenant)}</span></div>
+   <div class="row"><div class="main"><div class="t">カタログのバージョン</div></div><span class="v">${esc(BASE.version)}</span></div>
+   <div class="row"><div class="main"><div class="t">変更したオブジェクト</div></div><span class="v">${nOO}</span></div>
+   <div class="row"><div class="main"><div class="t">手動で追加したオブジェクト</div></div><span class="v">${nMO}</span></div>
+   <div class="row"><div class="main"><div class="t">削除したオブジェクト</div></div><span class="v">${delObjs.length}</span></div>
+   <div class="row"><div class="main"><div class="t">変更した項目</div></div><span class="v">${nO}</span></div>
+   <div class="row"><div class="main"><div class="t">手動で追加した項目</div></div><span class="v">${nM}</span></div>
+  </div>
+  ${delObjs.length?`<div class="sechead">削除したオブジェクト</div><div class="group">${delObjs.map(id=>`<div class="row"><div class="main"><div class="t">${esc(BASE.objects[id].label)}</div><div class="s">${esc(id)}</div></div><button class="linkbtn" data-restore="${esc(id)}">復元</button></div>`).join('')}</div>`:''}
+  <div class="sechead">書き出し</div>
+  <div class="group">
+   <button class="row" id="ex-js"><div class="main"><div class="t" style="color:var(--tint)">catalog.js を書き出す</div><div class="s">変更を反映したカタログ全体。リポジトリの data/catalog.js と置き換えると、全員に反映されます</div></div></button>
+   <button class="row" id="ex-json"><div class="main"><div class="t" style="color:var(--tint)">変更だけを書き出す（JSON）</div><div class="s">別の端末に移すときに使います</div></div></button>
+  </div>
+  <div class="sechead">読み込み</div>
+  <div class="group"><button class="row" id="im-json"><div class="main"><div class="t" style="color:var(--tint)">変更を読み込む（JSON）</div><div class="s">この端末の変更は、読み込んだ内容で置き換わります</div></div></button></div>
+  <button class="btn danger" id="reset">この端末の変更をすべて消す</button>
+  <div class="secfoot">catalog.js をリポジトリに反映した後は、この端末の変更を消してください。</div>`);
+ s.querySelector('#ex-js').onclick=()=>{download('catalog.js',exportCatalogJS(),'text/javascript');toast('catalog.js を書き出しました')};
+ s.querySelector('#ex-json').onclick=()=>{download('br-catalog-changes.json',JSON.stringify({tenant:BASE.tenant,exportedAt:new Date().toISOString(),overrides:OVER,manual:MANUAL,objOverrides:OBJOVER,manualObjects:MOBJ,log:CLOG},null,1),'application/json');toast('変更を書き出しました')};
+ s.querySelector('#im-json').onclick=()=>{const fi=document.getElementById('filein');fi.value='';fi.onchange=()=>{const f=fi.files[0];if(!f)return;const rd=new FileReader();
+  rd.onload=()=>{try{const d=JSON.parse(rd.result);if(!d||typeof d!=='object'||!d.overrides) throw new Error('形式が違います');OVER=d.overrides||{};MANUAL=d.manual||{};OBJOVER=d.objOverrides||{};MOBJ=d.manualObjects||{};CLOG=Array.isArray(d.log)?d.log:[];persistCatalog();closeSheet();refreshCat();toast('変更を読み込みました')}catch(e){toast('読み込めませんでした：'+e.message)}};rd.readAsText(f)};fi.click()};
+ s.querySelectorAll('[data-restore]').forEach(b=>b.onclick=()=>{
+  const id=b.dataset.restore, ov=OBJOVER[id]; if(!ov) return;
+  delete ov.deleted; if(!Object.keys(ov).length) delete OBJOVER[id];
+  logChange(id,'obj.restore',null,null); persistCatalog(); closeSheet(); refreshCat(); toast('オブジェクトを復元しました');
+ });
+ const r=s.querySelector('#reset'); r.onclick=()=>{
+  if(r.dataset.arm!=='1'){r.dataset.arm='1';r.textContent='もう一度クリックすると消します';setTimeout(()=>{r.dataset.arm='';r.textContent='この端末の変更をすべて消す'},3000);return}
+  OVER={};MANUAL={};OBJOVER={};MOBJ={};CLOG=[];persistCatalog();closeSheet();refreshCat();toast('この端末の変更を消しました');
+ };
+}
+function refreshCat(){const st=stacks.cat;while(st.length>1){st.pop().remove()}st[0].classList.remove('under');st[0]._refresh()}
+function exportCatalogJS(){
+ const c=JSON.parse(JSON.stringify(BASE)); c.version=new Date().toISOString().slice(0,10);
+ /* objects: current state (edited, added, deleted) — fields are rebuilt from FS below */
+ const objs={};
+ for(const [id,o] of Object.entries(OBJ)) objs[id]={...(c.objects[id]||{}),label:o.label,en:o.en,kind:o.kind,nav:o.nav.slice(),fields:{}};
+ c.objects=objs;
+ for(const f of Object.values(FS)){
+  const o=c.objects[f.obj]; if(!o) continue;
+  const out={label:f.label,en:f.en,type:f.type}; if(f.picklist) out.picklist=f.picklist; if(f.required) out.required=true;
+  if(f.desc) out.desc=f.desc; if(f.syn.length) out.syn=f.syn; if(f.status!=='active') out.inactive=true;
+  o.fields[f.name]=out;
+ }
+ return '// 項目カタログ（同期レイヤー）。BR アシスタントから書き出し。\nwindow.BR_CATALOG = '+JSON.stringify(c,null,1)+';\n';
+}
+function objView(id){
+ const v=makeView('cat',OBJ[id].label,`<h1 class="largetitle" id="ot"></h1><p class="subtitle" id="os"></p><div id="fl"></div>`,{back:'項目カタログ',right:'<button class="navbtn" id="edit">編集</button><button class="navbtn" id="add">項目を追加</button>'});
+ v.querySelector('#add').onclick=()=>push('cat',addFieldView(id));
+ v.querySelector('#edit').onclick=()=>push('cat',objEditView(id));
+ v._refresh=()=>{
+  const o=OBJ[id]; if(!o) return;
+  v.querySelector('#ot').innerHTML=esc(o.label)+ORIGIN_PILL(o.origin);
+  v.querySelector('#os').textContent=`${o.en?o.en+'（'+id+'）':id}・${KIND_JA[o.kind]||o.kind}`;
+  v.querySelector('.navbar .mid').textContent=o.label;
+  const fs=fieldsOf(id);
+  v.querySelector('#fl').innerHTML=`<div class="sechead">項目</div><div class="group">${fs.length?fs.map(fieldRow).join(''):'<div class="empty">まだ項目がありません。右上の「項目を追加」から追加してください。</div>'}</div>
+   <div class="sechead">アクセスできるオブジェクト</div><div class="group">${o.nav.length?o.nav.map(n=>`<div class="row"><div class="main"><div class="t">${esc(OBJ[n]?OBJ[n].label:n)}</div><div class="s">${esc(n)}</div></div></div>`).join(''):'<div class="empty">なし</div>'}</div>
+   <div class="secfoot">このオブジェクトを base object とするルールでは、このオブジェクトと上記オブジェクトの項目だけを使えます。右上の「編集」から変更できます。</div>`;
+  v.querySelectorAll('[data-field]').forEach(b=>b.onclick=()=>push('cat',fieldView(b.dataset.field,o.label)));
+ };
+ v._refresh(); return v;
+}
+/* Add a new object (id=null) or edit / delete an existing one */
+function objEditView(id){
+ const isNew=!id, title=isNew?'オブジェクトを追加':'オブジェクトを編集';
+ const start=isNew?{label:'',en:'',kind:'MDF',nav:[]}:OBJ[id];
+ let nav=start.nav.slice();
+ const v=makeView('cat',title,`<h1 class="largetitle">${title}</h1>
+  <p class="subtitle">${isNew?'API で取得できないオブジェクトや、新しく作る予定のオブジェクトを追加します。':`${esc(start.label)}（${esc(id)}）の属性を編集・削除します。`}</p><div id="oe"></div>`,
+  {back:isNew?'項目カタログ':start.label,right:isNew?'':'<button class="navbtn" id="save" disabled style="font-weight:600">保存</button>'});
+ const oe=v.querySelector('#oe'), save=v.querySelector('#save'), g=s=>v.querySelector(s);
+ const ATTR={'obj.label':'日本語ラベル','obj.en':'英語ラベル','obj.kind':'種類','obj.nav':'アクセスできるオブジェクト','obj.add':'オブジェクトを追加','obj.delete':'オブジェクトを削除','obj.restore':'オブジェクトを復元'};
+ const fmt=(k,x)=>k==='obj.kind'?(KIND_JA[x]||x||'（空欄）'):Array.isArray(x)?(x.map(n=>OBJ[n]?OBJ[n].label:n).join('、')||'なし'):(x||'（空欄）');
+ const same=(a,b)=>JSON.stringify(Array.isArray(a)?a.slice().sort():a)===JSON.stringify(Array.isArray(b)?b.slice().sort():b);
+ const val=()=>({label:g('#o-label').value.trim(),en:g('#o-en').value.trim(),kind:g('#o-kind').value,nav:nav.slice()});
+ const diff=()=>{const c=OBJ[id],n=val();return OBJ_ATTRS.filter(k=>!same(c[k],n[k])).map(k=>[k,c[k],n[k]])};
+ function setObjAttr(k,x){ if(MOBJ[id]) MOBJ[id][k]=x; else (OBJOVER[id]=OBJOVER[id]||{})[k]=x }
+ function upd(){
+  if(isNew){const ok=g('#o-id').value.trim()&&g('#o-label').value.trim();setGuide(v,ok?g('#o-add'):null);return}
+  save.disabled=!g('#o-label').value.trim()||!diff().length; setGuide(v,save.disabled?null:save);
+ }
+ function draw(){
+  const cur=isNew?start:OBJ[id];
+  if(!cur){oe.innerHTML='<div class="group"><div class="empty">このオブジェクトは削除されました</div></div>';if(save)save.disabled=true;return}
+  nav=cur.nav.slice();
+  const others=Object.keys(OBJ).filter(n=>n!==id);
+  const nFields=isNew?0:fieldsOf(id).length, nManualF=isNew?0:fieldsOf(id).filter(f=>f.origin==='manual').length;
+  const refBy=isNew?[]:Object.keys(OBJ).filter(n=>OBJ[n].nav.includes(id));
+  const hs=isNew?[]:CLOG.filter(h=>h.ref===id).slice().reverse();
+  oe.innerHTML=`
+   <div class="sechead">基本情報</div><div class="group">
+    <div class="row"><label class="main t" for="o-id">オブジェクト ID</label><div style="flex:1.4">${isNew?'<input id="o-id" class="inline" placeholder="例：cust_Training" autocapitalize="off" spellcheck="false">':`<div class="v" style="max-width:none">${esc(id)}</div>`}</div></div>
+    <div class="row"><label class="main t" for="o-label">日本語ラベル</label><div style="flex:1.4"><input id="o-label" class="inline" value="${esc(cur.label)}" placeholder="例：研修履歴"></div></div>
+    <div class="row"><label class="main t" for="o-en">英語ラベル</label><div style="flex:1.4"><input id="o-en" class="inline" value="${esc(cur.en)}" placeholder="任意"></div></div>
+    <div class="row"><label class="main t" for="o-kind">種類</label><div style="flex:1.4"><select id="o-kind" class="inline">${Object.entries(KIND_JA).concat(KIND_JA[cur.kind]?[]:[[cur.kind,cur.kind]]).map(([k,l])=>`<option value="${esc(k)}"${k===cur.kind?' selected':''}>${esc(l)}</option>`).join('')}</select></div></div>
+    ${isNew?'':`<div class="row"><div class="main t">ソース</div><span class="v">${{sync:'<span class="pill sync" style="margin:0">同期</span>',overridden:'<span class="pill overridden" style="margin:0">変更済み</span>',manual:'<span class="pill manual" style="margin:0">手動追加</span>'}[cur.origin]}</span></div>`}
+   </div>
+   ${isNew?'<div class="secfoot">ID は英字で始まる半角英数字とアンダースコア。項目は追加後に「項目を追加」から登録します。</div>':'<div class="secfoot">オブジェクト ID は項目の参照（オブジェクトID.項目ID）と履歴に使われているため変更できません。ID を変えたい場合は、新しいオブジェクトを追加してください。</div>'}
+   <div class="sechead">アクセスできるオブジェクト</div>
+   ${others.length?`<div class="chips wrap" style="padding:4px 16px 0">${others.map(n=>`<button class="chip" data-nav="${esc(n)}" aria-pressed="${nav.includes(n)}">${esc(OBJ[n].label)}</button>`).join('')}</div>`:'<div class="group"><div class="empty">ほかのオブジェクトがありません</div></div>'}
+   <div class="secfoot">このオブジェクトを base object とするルールで、項目を参照できるオブジェクトを選びます。</div>
+   ${isNew?`<div class="formerr" id="o-err" role="alert"></div><button class="btn" id="o-add">追加する</button>`:`
+   <div class="sechead">変更履歴</div><div class="group">${hs.length?hs.map(h=>`<div class="row"><div class="main"><div class="t" style="font-size:14px">${ATTR[h.attr]||h.attr}${h.revert?'（取り消し）':''}</div>${OBJ_ATTRS.includes(h.attr.slice(4))?`<div class="s">${esc(fmt(h.attr,h.before))} から ${esc(fmt(h.attr,h.after))} に変更</div>`:''}<div class="s">${esc(h.at)}</div></div>${h.reverted||h.revert||!OBJ_ATTRS.includes(h.attr.slice(4))?'':`<button class="linkbtn" data-revert="${esc(h.id)}">取り消す</button>`}</div>`).join(''):'<div class="empty">まだ変更はありません</div>'}</div>
+   <div class="sechead">削除</div>
+   <button class="btn danger" id="o-del">このオブジェクトを削除</button>
+   <div class="secfoot">${cur.origin==='manual'
+     ?`このオブジェクトと、その ${nManualF} 項目を完全に削除します。元に戻せません。`
+     :`このオブジェクトと ${nFields} 項目は、プロンプト・検証・書き出す catalog.js から外れます。「管理」からいつでも復元できます。`}${refBy.length?`<br>${refBy.map(n=>OBJ[n].label).join('、')} の「アクセスできるオブジェクト」からも外れます。`:''}</div>`}`;
+  oe.querySelectorAll('[data-nav]').forEach(b=>b.onclick=()=>{const n=b.dataset.nav;nav=nav.includes(n)?nav.filter(x=>x!==n):[...nav,n];b.setAttribute('aria-pressed',nav.includes(n));upd()});
+  oe.querySelectorAll('input,select').forEach(i=>{i.addEventListener('input',()=>{const e=g('#o-err');if(e)e.textContent='';upd()});i.addEventListener('change',upd)});
+  oe.querySelectorAll('[data-revert]').forEach(b=>b.onclick=()=>revert(b.dataset.revert));
+  if(isNew) g('#o-add').onclick=add;
+  else {const d=g('#o-del'); d.onclick=()=>{
+   if(d.dataset.arm!=='1'){d.dataset.arm='1';d.textContent='もう一度クリックすると削除します';setTimeout(()=>{d.dataset.arm='';d.textContent='このオブジェクトを削除'},3000);return}
+   del();
+  }}
+  if(save) save.disabled=true;
+  upd();
+ }
+ function add(){
+  const err=g('#o-err'), nid=g('#o-id').value.trim(), n=val();
+  if(!/^[A-Za-z_][A-Za-z0-9_]*$/.test(nid)){err.textContent='オブジェクト ID は英字で始まる半角英数字とアンダースコアで入力してください';return}
+  if(OBJ[nid]){err.textContent=`${nid} はすでにあります`;return}
+  if(BASE.objects[nid]){err.textContent=`${nid} は削除した同期オブジェクトと同じ ID です。「管理」から復元してください`;return}
+  if(!n.label){err.textContent='日本語ラベルを入力してください';return}
+  MOBJ[nid]={label:n.label,en:n.en,kind:n.kind,nav:n.nav};
+  logChange(nid,'obj.add',null,n.label); persistCatalog(); refreshCat(); push('cat',objView(nid)); toast('オブジェクトを追加しました');
+ }
+ function del(){
+  if(MOBJ[id]){
+   delete MOBJ[id];
+   for(const [r,m] of Object.entries(MANUAL)) if(m.obj===id){delete MANUAL[r];CLOG=CLOG.filter(h=>h.ref!==r)}
+   CLOG=CLOG.filter(h=>h.ref!==id);
+  } else { (OBJOVER[id]=OBJOVER[id]||{}).deleted=true; logChange(id,'obj.delete',null,null) }
+  persistCatalog(); refreshCat(); toast('オブジェクトを削除しました');
+ }
+ function revert(hid){
+  const h=CLOG.find(x=>x.id===hid); if(!h)return;
+  setObjAttr(h.attr.slice(4),h.before); h.reverted=true; logChange(id,h.attr,h.after,h.before,{revert:true}); persistCatalog(); draw(); toast('変更を取り消しました');
+ }
+ if(save) save.onclick=()=>{const d=diff(); if(!d.length||!g('#o-label').value.trim())return; d.forEach(([k,a,b])=>{logChange(id,'obj.'+k,a,b);setObjAttr(k,b)}); persistCatalog(); draw(); toast('保存しました')};
+ v._refresh=draw; draw(); return v;
+}
+function addFieldView(objId){
+ const v=makeView('cat','項目を追加',`<h1 class="largetitle">項目を追加</h1><p class="subtitle">${esc(OBJ[objId].label)}（${esc(objId)}）に、API で取得できない項目や新しく作る予定の項目を追加します。</p>
+  <div class="group">
+   <div class="row"><label class="main t" for="a-name">項目 ID</label><div style="flex:1.3"><input id="a-name" class="inline" placeholder="例：customDate5" autocapitalize="off" spellcheck="false"></div></div>
+   <div class="row"><label class="main t" for="a-label">日本語ラベル</label><div style="flex:1.3"><input id="a-label" class="inline" placeholder="例：昇格日"></div></div>
+   <div class="row"><label class="main t" for="a-en">英語ラベル</label><div style="flex:1.3"><input id="a-en" class="inline" placeholder="任意"></div></div>
+   <div class="row"><label class="main t" for="a-type">データ型</label><div style="flex:1.3"><select id="a-type" class="inline">${['date','string','picklist','boolean','number'].map(t=>`<option value="${t}">${TYPE_JA[t]}</option>`).join('')}</select></div></div>
+   <div class="row hidden" id="a-plrow"><label class="main t" for="a-pl">picklist</label><div style="flex:1.3"><select id="a-pl" class="inline">${Object.keys(PL).map(p=>`<option>${esc(p)}</option>`).join('')}</select></div></div>
+   <div class="row stack"><label for="a-desc">意味の説明</label><input id="a-desc" class="full" placeholder="業務上、この項目が何を表すか"></div>
+   <div class="row stack"><label for="a-syn">同義語（「、」またはカンマ区切り）</label><input id="a-syn" class="full" placeholder="例：昇格年月日、promotion date"></div>
+  </div>
+  <div class="formerr" id="a-err" role="alert"></div>
+  <button class="btn" id="a-save">追加する</button>`,{back:OBJ[objId].label});
+ const g=s=>v.querySelector(s), err=g('#a-err');
+ g('#a-type').onchange=()=>g('#a-plrow').classList.toggle('hidden',g('#a-type').value!=='picklist');
+ const ag=()=>setGuide(v,g('#a-name').value.trim()&&g('#a-label').value.trim()?g('#a-save'):null);
+ v.querySelectorAll('input').forEach(i=>i.addEventListener('input',()=>{err.textContent='';ag()}));
+ g('#a-save').onclick=()=>{
+  const name=g('#a-name').value.trim(), label=g('#a-label').value.trim(), ref=objId+'.'+name;
+  if(!/^[A-Za-z_][A-Za-z0-9_]*$/.test(name)){err.textContent='項目 ID は英字で始まる半角英数字とアンダースコアで入力してください';return}
+  if(FS[ref]){err.textContent=`${ref} はすでにあります`;return}
+  if(!label){err.textContent='日本語ラベルを入力してください';return}
+  const type=g('#a-type').value;
+  MANUAL[ref]={obj:objId,name,label,en:g('#a-en').value.trim(),type,picklist:type==='picklist'?g('#a-pl').value:null,
+   desc:g('#a-desc').value.trim(),syn:g('#a-syn').value.split(/[、,，]/).map(s=>s.trim()).filter(Boolean),status:'active'};
+  logChange(ref,'add',null,label,{manual:true}); persistCatalog(); toast('項目を追加しました'); pop('cat');
+ };
+ return v;
+}
+function fieldView(ref,backLabel){
+ const v=makeView('cat',FS[ref]?FS[ref].label:ref,`<h1 class="largetitle" id="fdt"></h1><p class="subtitle">${esc(FS[ref]?OBJ[FS[ref].obj].label:'')}（${esc(ref)}）</p><div id="fd"></div>`,{back:backLabel,right:'<button class="navbtn" id="save" disabled style="font-weight:600">保存</button>'});
+ const save=v.querySelector('#save');
+ const ATTR={label:'日本語ラベル',desc:'意味の説明',syn:'同義語',status:'状態',add:'項目を追加'};
+ const fmt=(k,x)=>k==='status'?(x==='active'?'有効':'無効'):Array.isArray(x)?(x.join('、')||'（空欄）'):(x||'（空欄）');
+ function draw(){
+  const f=FS[ref]; if(!f){v.querySelector('#fd').innerHTML='<div class="group"><div class="empty">この項目は削除されました</div></div>';save.disabled=true;return}
+  v.querySelector('#fdt').textContent=f.label;
+  const pl=f.picklist&&PL[f.picklist], manual=f.origin==='manual';
+  const hs=CLOG.filter(h=>h.ref===ref).slice().reverse();
+  v.querySelector('#fd').innerHTML=`
+   <div class="sechead">${manual?'手動で追加した項目':'同期データ（catalog.js）'}</div><div class="group">
+    <div class="row"><div class="main"><div class="t">データ型</div></div><span class="v">${TYPE_JA[f.type]}</span></div>
+    ${f.picklist?`<div class="row"><div class="main"><div class="t">picklist</div></div><span class="v">${esc(f.picklist)}</span></div>`:''}
+    ${f.en?`<div class="row"><div class="main"><div class="t">英語ラベル</div></div><span class="v">${esc(f.en)}</span></div>`:''}
+    <div class="row"><div class="main"><div class="t">ソース</div></div><span class="v"><span class="pill ${f.origin}" style="margin:0">${{sync:'同期',overridden:'変更済み',manual:'手動追加'}[f.origin]}</span></span></div>
+   </div>
+   ${pl?`<div class="sechead">選択肢の値</div><div class="group">${Object.entries(pl).map(([c,x])=>`<div class="row"><div class="main"><div class="t">${esc(x.ja)}${x.status!=='A'?'<span class="pill inactive">無効</span>':''}</div></div><span class="v">${esc(c)}</span></div>`).join('')}</div>`:''}
+   <div class="sechead">手動レイヤー（編集可）</div><div class="group">
+    <div class="row"><label class="main t" for="e-label">日本語ラベル</label><div style="flex:1.4"><input id="e-label" class="inline" value="${esc(f.label)}"></div></div>
+    <div class="row stack"><label for="e-desc">意味の説明</label><input id="e-desc" class="full" value="${esc(f.desc)}" placeholder="業務上、この項目が何を表すか"></div>
+    <div class="row stack"><label for="e-syn">同義語（「、」またはカンマ区切り）</label><input id="e-syn" class="full" value="${esc(f.syn.join('、'))}" placeholder="例：昇格日、promotion date"></div>
+    <div class="row"><label class="main t" for="e-st">有効</label><label class="switch"><input id="e-st" type="checkbox" ${f.status==='active'?'checked':''}><span></span></label></div>
+   </div>
+   <div class="secfoot">プロンプト作成時の検索は、ラベル・意味の説明・同義語を使います。無効にした項目は、プロンプトで使用不可と伝え、バリデーターもエラーにします。</div>
+   <div class="sechead">変更履歴</div><div class="group">${hs.length?hs.map(h=>`<div class="row"><div class="main"><div class="t" style="font-size:15px">${ATTR[h.attr]||h.attr}${h.revert?'（取り消し）':''}</div>${h.attr==='add'?'':`<div class="s">${esc(fmt(h.attr,h.before))} から ${esc(fmt(h.attr,h.after))} に変更</div>`}<div class="s">${esc(h.at)}</div></div>${h.reverted||h.revert||h.attr==='add'?'':`<button class="linkbtn" data-revert="${esc(h.id)}">取り消す</button>`}</div>`).join(''):'<div class="empty">まだ変更はありません</div>'}</div>
+   ${manual?'<button class="btn danger" id="delf">この項目を削除</button>':''}`;
+  const ins=['#e-label','#e-desc','#e-syn','#e-st'].map(s=>v.querySelector(s));
+  const upd=()=>{save.disabled=!diff().length;setGuide(v,save.disabled?null:save)};
+  ins.forEach(i=>{i.addEventListener('input',upd);i.addEventListener('change',upd)});
+  v.querySelectorAll('[data-revert]').forEach(b=>b.onclick=()=>revert(b.dataset.revert));
+  const df=v.querySelector('#delf'); if(df) df.onclick=()=>{
+   if(df.dataset.arm!=='1'){df.dataset.arm='1';df.textContent='もう一度クリックすると削除します';setTimeout(()=>{df.dataset.arm='';df.textContent='この項目を削除'},3000);return}
+   delete MANUAL[ref]; CLOG=CLOG.filter(h=>h.ref!==ref); persistCatalog(); toast('項目を削除しました'); pop('cat');
+  };
+  save.disabled=true; setGuide(v,null);
+ }
+ const val=()=>({label:v.querySelector('#e-label').value.trim()||FS[ref].label,desc:v.querySelector('#e-desc').value.trim(),syn:v.querySelector('#e-syn').value.split(/[、,，]/).map(s=>s.trim()).filter(Boolean),status:v.querySelector('#e-st').checked?'active':'inactive'});
+ const diff=()=>{const f=FS[ref],n=val();return ['label','desc','syn','status'].filter(k=>JSON.stringify(f[k])!==JSON.stringify(n[k])).map(k=>[k,f[k],n[k]])};
+ function setAttr(k,x){ if(MANUAL[ref]) MANUAL[ref][k]=x; else (OVER[ref]=OVER[ref]||{})[k]=x }
+ save.onclick=()=>{const d=diff(); if(!d.length)return; d.forEach(([k,a,b])=>{logChange(ref,k,a,b);setAttr(k,b)}); persistCatalog(); draw(); toast('保存しました')};
+ function revert(id){
+  const h=CLOG.find(x=>x.id===id); if(!h)return;
+  setAttr(h.attr,h.before); h.reverted=true; logChange(ref,h.attr,h.after,h.before,{revert:true}); persistCatalog(); draw(); toast('変更を取り消しました');
+ }
+ v._refresh=draw; draw(); return v;
+}
+
+/* =========================================================
+   15. Boot
+   ========================================================= */
+push('make',makeTabView()); push('check',checkTabView()); push('hist',histTabView()); push('cat',catTabView());
+if(!window.BR_CATALOG) toast('data/catalog.js を読み込めませんでした');
+if('serviceWorker' in navigator && location.protocol==='https:'){navigator.serviceWorker.register('sw.js').catch(()=>{})}
+</script>
+<script>
+/* =========================================================
+   16. Splash: rotating dot-matrix sphere → burst on click → app
+   ========================================================= */
+(()=>{
+ 'use strict';
+ const sp=document.getElementById('splash'); if(!sp) return;
+ const cv=sp.querySelector('canvas'), cx=cv.getContext('2d');
+ const reduce=matchMedia('(prefers-reduced-motion:reduce)').matches;
+ let W=0,H=0,R=0;
+ function resize(){const d=Math.min(2,devicePixelRatio||1);W=innerWidth;H=innerHeight;cv.width=W*d;cv.height=H*d;cv.style.width=W+'px';cv.style.height=H+'px';cx.setTransform(d,0,0,d,0,0);R=Math.min(W,H)*.23}
+ resize(); addEventListener('resize',resize);
+
+ /* dot matrix on a sphere: latitude rings, dots spaced evenly along each ring */
+ const P=[], RINGS=28;
+ for(let i=0;i<=RINGS;i++){
+  const lat=-Math.PI/2+Math.PI*i/RINGS, cr=Math.cos(lat), n=Math.max(1,Math.round(RINGS*2*cr));
+  for(let j=0;j<n;j++){
+   const lon=2*Math.PI*j/n+(i%2?Math.PI/n:0), rnd=()=>Math.random()-.5;
+   P.push({x:cr*Math.cos(lon),y:Math.sin(lat),z:cr*Math.sin(lon),tw:Math.random()*6.283,sp:.5+Math.random()*1.3,jx:rnd(),jy:rnd(),jz:rnd()});
+  }
+ }
+ const TEAL=[0,151,169], GREEN=[134,188,37], LIGHT=[199,229,140];
+ const mix=(a,b,k)=>a.map((v,i)=>Math.round(v+(b[i]-v)*k));
+ const clamp=k=>k<0?0:k>1?1:k;
+ const BOOM_MS=reduce?350:1300;
+ let mx=0,my=0,tmx=0,tmy=0,boom=0,ring=null,raf=0,ended=false;
+ const t0=performance.now();
+
+ sp.addEventListener('pointermove',e=>{tmx=(e.clientX/W-.5)*2;tmy=(e.clientY/H-.5)*2});
+
+ function frame(now){
+  const t=(now-t0)/1000, k=boom?clamp((now-boom)/BOOM_MS):0, e=k*k*k, fade=clamp((k-.35)/.65);
+  mx+=(tmx-mx)*.05; my+=(tmy-my)*.05;
+  const ry=(reduce?.6:t*.32+e*2.4)+mx*.5, rx=-.38+my*.3;
+  const sy=Math.sin(ry),cy=Math.cos(ry),sx=Math.sin(rx),cxx=Math.cos(rx);
+  const CX=W/2, CY=H*.44, F=3.4, breath=1+.018*Math.sin(t*1.7);
+  cx.clearRect(0,0,W,H);
+
+  /* soft core glow */
+  const gl=cx.createRadialGradient(CX,CY,0,CX,CY,R*1.9);
+  gl.addColorStop(0,`rgba(134,188,37,${.16*(1-fade)})`);gl.addColorStop(.5,`rgba(0,151,169,${.05*(1-fade)})`);gl.addColorStop(1,'rgba(0,0,0,0)');
+  cx.fillStyle=gl;cx.fillRect(0,0,W,H);
+
+  /* project */
+  const pts=[];
+  for(const p of P){
+   const d=breath*(1+e*p.sp*10);
+   const x=(p.x+p.jx*e*.8)*d, y=(p.y+p.jy*e*.8)*d, z=(p.z+p.jz*e*.8)*d;
+   const x1=x*cy+z*sy, z1=-x*sy+z*cy, y1=y*cxx-z1*sx, z2=y*sx+z1*cxx;
+   const depth=F+z2; if(depth<.15) continue;
+   const s=F/depth;
+   pts.push([CX+x1*R*s, CY+y1*R*s, s, z2, p]);
+  }
+  pts.sort((a,b)=>b[3]-a[3]);
+
+  cx.globalCompositeOperation='lighter';
+  for(const [px,py,s,z2,p] of pts){
+   const f=clamp((1-z2/breath)/2);                 // 1 = facing the viewer
+   const tw=Math.sin(t*2.6+p.tw)>.985;              // occasional twinkle
+   const c=tw?[255,255,255]:f>.55?mix(GREEN,LIGHT,(f-.55)/.45*.6):mix(TEAL,GREEN,f/.55);
+   const a=(.16+.84*f)*(1-fade);
+   if(a<=.01) continue;
+   const r=(.7+1.7*f)*Math.min(s,6);
+   if(f>.55||boom){cx.fillStyle=`rgba(${c},${a*.13})`;cx.beginPath();cx.arc(px,py,r*3.2,0,6.283);cx.fill()}
+   cx.fillStyle=`rgba(${c},${a})`;cx.beginPath();cx.arc(px,py,r,0,6.283);cx.fill();
+  }
+  cx.globalCompositeOperation='source-over';
+
+  /* shockwave from the click point */
+  if(ring){
+   const q=clamp((now-ring.t)/900), rr=q*Math.hypot(W,H)*.75;
+   cx.lineWidth=2.5*(1-q)+.5;
+   cx.strokeStyle=`rgba(134,188,37,${.85*(1-q)})`;cx.beginPath();cx.arc(ring.x,ring.y,rr,0,6.283);cx.stroke();
+   cx.strokeStyle=`rgba(0,151,169,${.5*(1-q)})`;cx.beginPath();cx.arc(ring.x,ring.y,rr*.82,0,6.283);cx.stroke();
+  }
+
+  if(boom&&k>=1){finish();return}
+  raf=requestAnimationFrame(frame);
+ }
+ function start(x,y){
+  if(boom) return;
+  boom=performance.now();
+  if(!reduce) ring={x:x==null?W/2:x,y:y==null?H*.44:y,t:boom};
+  sp.classList.add('go');
+ }
+ function finish(){
+  if(ended) return; ended=true;
+  cancelAnimationFrame(raf); removeEventListener('resize',resize); sp.remove();
+ }
+ sp.addEventListener('pointerdown',e=>start(e.clientX,e.clientY));
+ sp.addEventListener('keydown',e=>{if(['Enter',' ','Escape'].includes(e.key)){e.preventDefault();start()}});
+ sp.focus({preventScroll:true});
+ raf=requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
